@@ -4,8 +4,8 @@
 [![license](https://img.shields.io/github/license/flippelt/mesa-press)](./LICENSE)
 
 CLI que transforma um arquivo Markdown com frontmatter YAML em um PDF
-**A5** ou **A6** pronto para imprimir e colocar na mesa: carta de pergaminho,
-cartaz de aviso ou dataslate sci-fi.
+**A5** ou **A6** pronto para imprimir e colocar na mesa: carta, cartaz,
+dataslate, placa de metal, telegrama, dossiê, édito, jornal ou passagem.
 
 Pensado para **props físicos** (handouts que o jogador segura). O QR opcional
 pode apontar para uma entrada do [campaign-codex](https://github.com/flippelt/campaign-codex)
@@ -58,7 +58,7 @@ O último comando gera PDFs em `dist/pdfs/` (gitignored).
 
 ```yaml
 ---
-template: letter | poster | dataslate
+template: letter | poster | dataslate | plate | telegram | dossier | edict | newspaper | ticket
 size: a5 | a6
 title: string
 from?: string
@@ -67,7 +67,7 @@ date?: string
 seal?: crimson | gold | green | charcoal | none
 qr?: string
 eyebrow?: string
-theme?: vellum | imperial | amber
+theme?: vellum | imperial | amber | iron | brass | gunmetal
 ---
 
 Corpo em Markdown. **negrito**, *itálico*, headings, listas e parágrafos.
@@ -76,19 +76,19 @@ Imagens (`![alt](url)`) são ignoradas no MVP, com aviso no stderr.
 
 | Campo      | Obrigatório | Padrão     | Notas |
 | ---------- | ----------- | ---------- | ----- |
-| `template` | sim         | —          | `letter`, `poster` ou `dataslate` |
+| `template` | sim         | —          | ver lista abaixo |
 | `title`    | sim         | —          | Título no prop |
 | `size`     | não         | `a5`       | `a5` ou `a6`, sempre retrato |
 | `from`     | não         | —          | Remetente / origem |
 | `to`       | não         | —          | Destinatário |
 | `date`     | não         | —          | Data livre (não precisa ser ISO) |
-| `seal`     | não         | `none`     | Selo de cera no canto da carta |
+| `seal`     | não         | `none`     | Selo de cera (carta e édito) |
 | `qr`       | não         | —          | URL ou texto. QR 20 mm |
-| `eyebrow`  | não         | —          | Tarja do cartaz (ex.: `PROCURADO`) ou kicker do dataslate |
-| `theme`    | não         | ver abaixo | `vellum` nas cartas/cartazes; `imperial` ou `amber` no dataslate |
+| `eyebrow`  | não         | —          | Tarja / classificação / seção |
+| `theme`    | não         | ver abaixo | `imperial`/`amber` no dataslate; `iron`/`brass`/`gunmetal` na placa; `vellum` no resto |
 
 `theme` no dataslate escolhe o fósforo (`imperial` verde, `amber` âmbar).
-Em `letter`/`poster` o tom de papel é sempre o pergaminho (`vellum`).
+Na **placa**, escolhe o metal. Nos outros templates o papel é fixo.
 
 ## Tamanhos
 
@@ -114,7 +114,25 @@ Duas manchas suaves nos cantos. QR no centro inferior.
 
 **dataslate** — tablet sci-fi. Página escura, bezel, barra `:: DATASLATE ::`,
 título e corpo em monoespaçada. QR em módulos invertidos (fósforo no fundo
-escuro).
+escuro). `theme: imperial` (padrão) ou `amber`.
+
+**plate** — placa de metal (rebites, degradê). `theme: iron` (padrão), `brass`
+ou `gunmetal`. Bom para aviso de setor / porta.
+
+**telegram** — fita amarela, cabeçalho DE/PARA/EM em caixa alta, corpo
+monoespaçado. `eyebrow` vira o carimbo do cabeçalho (`URGENTE`, etc.).
+
+**dossier** — pasta manila com aba, carimbo diagonal do `eyebrow`, ficha
+ORIGEM/DESTINO/DATA.
+
+**edict** — decreto. Moldura dourada, título central, selo de cera opcional.
+`eyebrow` padrão: POR DECRETO.
+
+**newspaper** — recorte de jornal. Cabeçalho grande, filetes, data/origem
+no meio.
+
+**ticket** — passagem com talão perfurado à esquerda. `from`/`to` viram DE/PARA;
+QR no talão. Cai bem em A6.
 
 Fontes: [Liberation](https://github.com/liberationfonts/liberation-fonts)
 (Serif / Sans / Mono) empacotadas em `fonts/` — SIL OFL, ver
@@ -131,6 +149,12 @@ Metadados do PDF: `Title` = título do prop, `Author` = Felipe Lippelt,
 | `examples/carta-vigia.md` | letter | Relatório da Vigília de Pedravale (Valdoran) |
 | `examples/cartaz-fenda.md` | poster | Aviso sobre a Grande Fenda |
 | `examples/dataslate-union.md` | dataslate | Aviso administrativo da União (genérico) |
+| `examples/placa-setor.md` | plate | Placa do Setor 7-G |
+| `examples/telegrama-vigia.md` | telegram | Cabo urgente da muralha |
+| `examples/dossie-corvo.md` | dossier | Ficha do Mestre Corvo |
+| `examples/edito-fenda.md` | edict | Decreto sobre a borda norte |
+| `examples/jornal-fenda.md` | newspaper | Recorte da Folha de Pedravale |
+| `examples/passagem-valdoran.md` | ticket | Passagem da caravana |
 
 Valdoran é campanha de demonstração do campaign-codex. A União aqui é
 casca genérica, não uma missão específica. **Não coloque lore privado

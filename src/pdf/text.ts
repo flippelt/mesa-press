@@ -2,11 +2,16 @@ import type { Block, Inline } from '../types.js'
 import { FONT } from './fonts.js'
 import type { PDFDoc } from './pdfkit.js'
 
-export function fontFor(family: 'serif' | 'mono', span: Pick<Inline, 'bold' | 'italic' | 'mono'>): string {
+export type FlowFamily = 'serif' | 'sans' | 'mono'
+
+export function fontFor(family: FlowFamily, span: Pick<Inline, 'bold' | 'italic' | 'mono'>): string {
   const bold = Boolean(span.bold)
   const italic = Boolean(span.italic)
   if (span.mono || family === 'mono') {
     return bold ? FONT.monoBold : FONT.mono
+  }
+  if (family === 'sans') {
+    return bold ? FONT.sansBold : FONT.sans
   }
   if (bold && italic) return FONT.serifBoldItalic
   if (bold) return FONT.serifBold
@@ -36,7 +41,7 @@ function wrapSpans(
   doc: PDFDoc,
   spans: Inline[],
   maxWidth: number,
-  family: 'serif' | 'mono',
+  family: FlowFamily,
   fontSize: number,
 ): Line[] {
   const tokens = tokenize(spans)
@@ -104,7 +109,7 @@ export type FlowBox = {
 }
 
 export type FlowStyle = {
-  family: 'serif' | 'mono'
+  family: FlowFamily
   color: string
   align: 'left' | 'center'
   paragraphSize: number
@@ -118,7 +123,7 @@ function drawLine(
   x: number,
   y: number,
   boxWidth: number,
-  family: 'serif' | 'mono',
+  family: FlowFamily,
   fontSize: number,
   color: string,
   align: 'left' | 'center',

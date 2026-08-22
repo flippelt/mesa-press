@@ -13,6 +13,12 @@ const examples = [
   { file: 'carta-vigia.md', word: 'Pedravale' },
   { file: 'cartaz-fenda.md', word: 'Fenda' },
   { file: 'dataslate-union.md', word: 'Comissariado' },
+  { file: 'placa-setor.md', word: 'Pedravale' },
+  { file: 'telegrama-vigia.md', word: 'Fenda' },
+  { file: 'dossie-corvo.md', word: 'Corvo' },
+  { file: 'edito-fenda.md', word: 'fosso' },
+  { file: 'jornal-fenda.md', word: 'Pedravale' },
+  { file: 'passagem-valdoran.md', word: 'Caravana' },
 ] as const
 
 function extractText(pdfPath: string): string | null {
@@ -37,7 +43,6 @@ describe('render examples', () => {
       const text = extractText(out)
       if (text !== null) {
         expect(text).toMatch(new RegExp(example.word, 'i'))
-        expect(text).toMatch(/Vigília|Fenda|União/)
         expect(text).not.toMatch(/Vigí\s+lia/)
         expect(text).not.toMatch(/Uni\s+ão/)
       }

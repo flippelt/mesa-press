@@ -19,6 +19,16 @@ Corpo com **Pedravale**.
     expect(prop.blocks[0]?.type).toBe('paragraph')
   })
 
+  it('aplica tema iron por padrão na placa', () => {
+    const prop = parsePropSource(`---
+template: plate
+title: Setor
+---
+ok
+`)
+    expect(prop.frontmatter.theme).toBe('iron')
+  })
+
   it('aplica tema imperial por padrão no dataslate', () => {
     const prop = parsePropSource(`---
 template: dataslate

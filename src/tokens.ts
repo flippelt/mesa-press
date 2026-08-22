@@ -21,6 +21,49 @@ export const POSTER = {
   stain: '#7a4a1e',
 } as const
 
+export const METAL = {
+  iron: { hi: '#d0d4da', mid: '#8b919a', lo: '#4a5158', ink: '#f3f5f7' },
+  brass: { hi: '#e2c878', mid: '#b08a3a', lo: '#5a3e10', ink: '#1a1408' },
+  gunmetal: { hi: '#6a7a86', mid: '#3e4a52', lo: '#1a2228', ink: '#d6e0e8' },
+} as const
+
+export const TELEGRAM = {
+  paper: '#f3e6b0',
+  ink: '#1a140c',
+  bar: '#1a140c',
+  urgent: '#7a1f16',
+} as const
+
+export const DOSSIER = {
+  folder: '#c4a56a',
+  page: '#efe0c0',
+  tab: '#a98448',
+  ink: '#2a1c10',
+  rule: '#8a6a38',
+} as const
+
+export const EDICT = {
+  bg: '#efe4c4',
+  ink: '#2c1c0c',
+  gold: '#8a6a18',
+  rule: '#c4b08a',
+} as const
+
+export const NEWSPAPER = {
+  paper: '#f3efe2',
+  ink: '#161410',
+  rule: '#2a2418',
+  kicker: '#7a1f16',
+} as const
+
+export const TICKET = {
+  paper: '#f7edd4',
+  stub: '#ead7b0',
+  ink: '#1a140c',
+  accent: '#7a1f16',
+  dash: '#6a5338',
+} as const
+
 export const DATASLATE = {
   imperial: {
     bg: '#0b0e0c',
@@ -38,3 +81,4 @@ export const DATASLATE = {
 
 export type WaxPalette = (typeof WAX)[keyof typeof WAX]
 export type DataslatePalette = (typeof DATASLATE)[keyof typeof DATASLATE]
+export type MetalPalette = (typeof METAL)[keyof typeof METAL]
