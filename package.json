@@ -1,7 +1,7 @@
 {
   "name": "mesa-press",
   "version": "0.1.0",
-  "description": "CLI Markdown → PDF de props imprimíveis para mesa de RPG (carta, cartaz, dataslate).",
+  "description": "CLI Markdown → PDF de props imprimíveis para mesa de RPG (carta, cartaz, dataslate, placa, telegrama, dossiê, édito, jornal, passagem).",
   "type": "module",
   "license": "MIT",
   "author": "Felipe Lippelt",
@@ -45,7 +45,7 @@
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
-    "render:examples": "node dist/cli.js render examples/carta-vigia.md examples/cartaz-fenda.md examples/dataslate-union.md --out dist/pdfs/",
+    "render:examples": "node dist/cli.js render examples/*.md --out dist/pdfs/",
     "prepublishOnly": "npm test && npm run build"
   },
   "dependencies": {

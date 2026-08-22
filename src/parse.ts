@@ -65,7 +65,8 @@ export function parsePropSource(source: string, sourcePath?: string): PropDocume
   const sealRaw = asString(raw.seal)?.toLowerCase() ?? 'none'
   const seal = include<SealName>(sealRaw, SEALS, 'Selo')
 
-  const defaultTheme: ThemeName = template === 'dataslate' ? 'imperial' : 'vellum'
+  const defaultTheme: ThemeName =
+    template === 'dataslate' ? 'imperial' : template === 'plate' ? 'iron' : 'vellum'
   const themeRaw = asString(raw.theme)?.toLowerCase() ?? defaultTheme
   const theme = include<ThemeName>(themeRaw, THEMES, 'Tema')
 

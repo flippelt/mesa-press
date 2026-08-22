@@ -1,7 +1,17 @@
-export const TEMPLATES = ['letter', 'poster', 'dataslate'] as const
+export const TEMPLATES = [
+  'letter',
+  'poster',
+  'dataslate',
+  'plate',
+  'telegram',
+  'dossier',
+  'edict',
+  'newspaper',
+  'ticket',
+] as const
 export const PAGE_SIZE_NAMES = ['a5', 'a6'] as const
 export const SEALS = ['crimson', 'gold', 'green', 'charcoal', 'none'] as const
-export const THEMES = ['vellum', 'imperial', 'amber'] as const
+export const THEMES = ['vellum', 'imperial', 'amber', 'iron', 'brass', 'gunmetal'] as const
 
 export type TemplateName = (typeof TEMPLATES)[number]
 export type PageSizeName = (typeof PAGE_SIZE_NAMES)[number]

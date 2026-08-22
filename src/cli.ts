@@ -16,7 +16,7 @@ Opções:
   -h, --help      Mostra esta ajuda
   -v, --version   Versão
 
-Templates: letter, poster, dataslate
+Templates: letter, poster, dataslate, plate, telegram, dossier, edict, newspaper, ticket
 Tamanhos: a5 (padrão), a6
 `
 
