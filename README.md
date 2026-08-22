@@ -104,20 +104,22 @@ Não gira para paisagem no MVP.
 
 ## Templates
 
-**letter** — carta em velino. Margem, borda dupla, título centralizado em
-versaletes, bloco De/Para/Data, corpo em serifada (Times-Roman), selo de
-cera opcional no canto inferior direito, QR no inferior esquerdo.
+**letter** — carta em velino. Margem, borda dupla, título centralizado,
+bloco De/Para/Data, corpo em serifada, selo de cera opcional no canto
+inferior direito, QR no inferior esquerdo.
 
 **poster** — aviso / procurado. Moldura grossa dupla, `eyebrow` em oxblood,
 título grande tipo xilogravura, corpo centralizado, rodapé com data.
 Duas manchas suaves nos cantos. QR no centro inferior.
 
 **dataslate** — tablet sci-fi. Página escura, bezel, barra `:: DATASLATE ::`,
-título e corpo em Courier. QR em módulos invertidos (fósforo no fundo
+título e corpo em monoespaçada. QR em módulos invertidos (fósforo no fundo
 escuro).
 
-Fontes: as padrão do PDF (Times-Roman nas cartas/cartazes, Courier no
-dataslate, Helvetica nas etiquetas). Sem Google Fonts no MVP.
+Fontes: [Liberation](https://github.com/liberationfonts/liberation-fonts)
+(Serif / Sans / Mono) empacotadas em `fonts/` — SIL OFL, ver
+`fonts/LICENSE-LIBERATION`. Sem Google Fonts. Sem as AFM padrão do PDFKit
+(elas partem acentos do português).
 
 Metadados do PDF: `Title` = título do prop, `Author` = Felipe Lippelt,
 `Creator` = mesa-press.
@@ -136,4 +138,5 @@ neste repositório.**
 
 ## Licença
 
-MIT © 2026 Felipe Lippelt. Ver [LICENSE](./LICENSE).
+MIT © 2026 Felipe Lippelt. Ver [LICENSE](./LICENSE). As fontes Liberation
+em `fonts/` são SIL OFL (`fonts/LICENSE-LIBERATION`).
