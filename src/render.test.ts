@@ -37,6 +37,9 @@ describe('render examples', () => {
       const text = extractText(out)
       if (text !== null) {
         expect(text).toMatch(new RegExp(example.word, 'i'))
+        expect(text).toMatch(/Vigília|Fenda|União/)
+        expect(text).not.toMatch(/Vigí\s+lia/)
+        expect(text).not.toMatch(/Uni\s+ão/)
       }
     })
   }

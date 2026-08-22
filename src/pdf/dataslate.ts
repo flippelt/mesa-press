@@ -1,7 +1,8 @@
 import { DATASLATE, type DataslatePalette } from '../tokens.js'
 import type { PropDocument, ThemeName } from '../types.js'
-import type { PDFDoc } from './pdfkit.js'
 import { addSameSizePage } from './document.js'
+import { FONT, isAscii } from './fonts.js'
+import type { PDFDoc } from './pdfkit.js'
 import { drawQr } from './qr.js'
 import { mm, QR_MM, type PageBox } from './sizes.js'
 import { flowBlocks, type FlowBox } from './text.js'
@@ -83,14 +84,14 @@ export function drawDataslate(doc: PDFDoc, prop: PropDocument, page: PageBox): v
     doc.rect(barX, barY, barW, barH).fill()
     doc.restore()
 
-    doc.font('Courier-Bold').fontSize(compact ? 7 : 8).fillColor(pal.fg)
+    doc.font(FONT.monoBold).fontSize(compact ? 7 : 8).fillColor(pal.fg)
     doc.text(':: DATASLATE ::', barX + mm(2), barY + mm(2.2), {
       width: barW * 0.62,
       lineBreak: false,
       characterSpacing: 0.6,
     })
     const tag = fm.theme === 'amber' ? 'AMBER' : 'IMPERIAL'
-    doc.font('Courier').fontSize(compact ? 6.5 : 7.5)
+    doc.font(FONT.mono).fontSize(compact ? 6.5 : 7.5)
     doc.text(tag, barX, barY + mm(2.4), {
       width: barW - mm(2),
       align: 'right',
@@ -104,23 +105,24 @@ export function drawDataslate(doc: PDFDoc, prop: PropDocument, page: PageBox): v
     const innerW = screenW - mm(10)
 
     if (fm.eyebrow && !running) {
-      doc.font('Courier').fontSize(compact ? 7 : 8).fillColor(pal.fg).fillOpacity(0.7)
-      doc.text(fm.eyebrow.toUpperCase(), innerX, y, {
+      const eyebrow = fm.eyebrow.toUpperCase()
+      doc.font(FONT.mono).fontSize(compact ? 7 : 8).fillColor(pal.fg).fillOpacity(0.7)
+      doc.text(eyebrow, innerX, y, {
         width: innerW,
-        characterSpacing: 1.1,
+        characterSpacing: isAscii(eyebrow) ? 1.1 : 0,
       })
       doc.fillOpacity(1)
       y += mm(5)
     }
 
-    doc.font('Courier-Bold').fontSize(compact ? 11 : 13).fillColor(pal.fg)
+    doc.font(FONT.monoBold).fontSize(compact ? 11 : 13).fillColor(pal.fg)
     const titleH = doc.heightOfString(fm.title.toUpperCase(), { width: innerW })
     doc.text(fm.title.toUpperCase(), innerX, y, { width: innerW })
     y += titleH + mm(2)
 
     const meta = [fm.from, fm.to, fm.date].filter(Boolean).join('  ·  ')
     if (meta && !running) {
-      doc.font('Courier').fontSize(compact ? 7 : 8).fillColor(pal.fg).fillOpacity(0.65)
+      doc.font(FONT.mono).fontSize(compact ? 7 : 8).fillColor(pal.fg).fillOpacity(0.65)
       doc.text(meta, innerX, y, { width: innerW })
       doc.fillOpacity(1)
       y += mm(5)

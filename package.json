@@ -21,6 +21,7 @@
   },
   "files": [
     "dist",
+    "fonts",
     "LICENSE",
     "README.md"
   ],

@@ -1,7 +1,8 @@
 import { POSTER } from '../tokens.js'
 import type { PropDocument } from '../types.js'
-import type { PDFDoc } from './pdfkit.js'
 import { addSameSizePage } from './document.js'
+import { FONT, isAscii } from './fonts.js'
+import type { PDFDoc } from './pdfkit.js'
 import { drawQr } from './qr.js'
 import { mm, QR_MM, type PageBox } from './sizes.js'
 import { flowBlocks, type FlowBox } from './text.js'
@@ -64,17 +65,18 @@ export function drawPoster(doc: PDFDoc, prop: PropDocument, page: PageBox): void
     let y = margin + mm(compact ? 8 : 11)
 
     if (fm.eyebrow && !running) {
-      doc.font('Helvetica-Bold').fontSize(compact ? 8 : 10).fillColor(POSTER.kicker)
-      doc.text(fm.eyebrow.toUpperCase(), innerX, y, {
+      const eyebrow = fm.eyebrow.toUpperCase()
+      doc.font(FONT.sansBold).fontSize(compact ? 8 : 10).fillColor(POSTER.kicker)
+      doc.text(eyebrow, innerX, y, {
         width: innerW,
         align: 'center',
-        characterSpacing: 2.8,
+        characterSpacing: isAscii(eyebrow) ? 2.8 : 0,
       })
       y += mm(compact ? 6 : 8)
     }
 
     const titleSize = compact ? 18 : running ? 14 : 28
-    doc.font('Times-Bold').fontSize(titleSize)
+    doc.font(FONT.serifBold).fontSize(titleSize)
     const titleOpts = { width: innerW, align: 'center' as const }
     const titleH = doc.heightOfString(fm.title.toUpperCase(), titleOpts)
     doc.fillColor(POSTER.ink).fillOpacity(0.18)
@@ -133,11 +135,12 @@ export function drawPoster(doc: PDFDoc, prop: PropDocument, page: PageBox): void
     .stroke()
   doc.restore()
   if (fm.date) {
-    doc.font('Helvetica').fontSize(7).fillColor(POSTER.ink).fillOpacity(0.75)
-    doc.text(fm.date.toUpperCase(), innerX, footY + mm(2), {
+    const date = fm.date.toUpperCase()
+    doc.font(FONT.sans).fontSize(7).fillColor(POSTER.ink).fillOpacity(0.75)
+    doc.text(date, innerX, footY + mm(2), {
       width: innerW,
       align: 'center',
-      characterSpacing: 1.1,
+      characterSpacing: isAscii(date) ? 1.1 : 0,
     })
     doc.fillOpacity(1)
   }

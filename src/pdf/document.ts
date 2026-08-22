@@ -1,3 +1,4 @@
+import { registerFonts } from './fonts.js'
 import { PDFDocument, type PDFDoc } from './pdfkit.js'
 
 export function createDocument(opts: {
@@ -5,7 +6,7 @@ export function createDocument(opts: {
   height: number
   title: string
 }): PDFDoc {
-  return new PDFDocument({
+  const doc = new PDFDocument({
     size: [opts.width, opts.height],
     margin: 0,
     compress: true,
@@ -17,6 +18,8 @@ export function createDocument(opts: {
       Producer: 'mesa-press',
     },
   })
+  registerFonts(doc)
+  return doc
 }
 
 export function addSameSizePage(doc: PDFDoc, width: number, height: number): void {

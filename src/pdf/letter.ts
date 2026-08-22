@@ -1,7 +1,8 @@
 import { VELLUM } from '../tokens.js'
 import type { PropDocument } from '../types.js'
-import type { PDFDoc } from './pdfkit.js'
 import { addSameSizePage } from './document.js'
+import { FONT, isAscii } from './fonts.js'
+import type { PDFDoc } from './pdfkit.js'
 import { drawQr } from './qr.js'
 import { drawWaxSeal, waxPalette } from './seal.js'
 import { mm, QR_MM, type PageBox } from './sizes.js'
@@ -44,14 +45,14 @@ function metaRow(
   width: number,
 ): number {
   if (!value) return 0
-  doc.font('Helvetica').fontSize(7).fillColor(VELLUM.ink).fillOpacity(0.62)
+  doc.font(FONT.sansBold).fontSize(7).fillColor(VELLUM.ink).fillOpacity(0.62)
   doc.text(label.toUpperCase(), x, y, {
     width: mm(16),
     lineBreak: false,
-    characterSpacing: 1.2,
+    characterSpacing: isAscii(label) ? 1.2 : 0,
   })
   doc.fillOpacity(1)
-  doc.font('Times-Italic').fontSize(10).fillColor(VELLUM.ink)
+  doc.font(FONT.serifItalic).fontSize(10).fillColor(VELLUM.ink)
   doc.text(value, x + mm(18), y - 1.2, { width: width - mm(18), lineBreak: false })
   return mm(6.2)
 }
@@ -71,12 +72,12 @@ export function drawLetter(doc: PDFDoc, prop: PropDocument, page: PageBox): void
     drawChrome(doc, page, margin)
     let y = margin + mm(compact ? 7 : 9)
 
-    doc.font('Times-Bold').fontSize(compact ? 11 : 14).fillColor(VELLUM.ink)
+    doc.font(FONT.serifBold).fontSize(compact ? 11 : 14).fillColor(VELLUM.ink)
     const title = running ? fm.title : fm.title.toUpperCase()
     doc.text(title, innerX, y, {
       width: innerW,
       align: 'center',
-      characterSpacing: running ? 0.4 : 2.1,
+      characterSpacing: isAscii(title) ? 1.4 : 0,
     })
     y += compact ? mm(8) : mm(10)
 

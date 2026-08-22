@@ -1,19 +1,17 @@
 import type { Block, Inline } from '../types.js'
+import { FONT } from './fonts.js'
 import type { PDFDoc } from './pdfkit.js'
 
 export function fontFor(family: 'serif' | 'mono', span: Pick<Inline, 'bold' | 'italic' | 'mono'>): string {
   const bold = Boolean(span.bold)
   const italic = Boolean(span.italic)
   if (span.mono || family === 'mono') {
-    if (bold && italic) return 'Courier-BoldOblique'
-    if (bold) return 'Courier-Bold'
-    if (italic) return 'Courier-Oblique'
-    return 'Courier'
+    return bold ? FONT.monoBold : FONT.mono
   }
-  if (bold && italic) return 'Times-BoldItalic'
-  if (bold) return 'Times-Bold'
-  if (italic) return 'Times-Italic'
-  return 'Times-Roman'
+  if (bold && italic) return FONT.serifBoldItalic
+  if (bold) return FONT.serifBold
+  if (italic) return FONT.serifItalic
+  return FONT.serif
 }
 
 function measure(doc: PDFDoc, font: string, size: number, text: string): number {
@@ -61,14 +59,15 @@ function wrapSpans(
     let w = measure(doc, font, fontSize, piece)
     if (w > maxWidth && !isSpace) {
       push()
-      let rest = piece
-      while (rest.length) {
+      const chars = Array.from(piece)
+      let offset = 0
+      while (offset < chars.length) {
         let lo = 1
-        let hi = rest.length
+        let hi = chars.length - offset
         let fit = 1
         while (lo <= hi) {
           const mid = Math.ceil((lo + hi) / 2)
-          const chunk = rest.slice(0, mid)
+          const chunk = chars.slice(offset, offset + mid).join('')
           if (measure(doc, font, fontSize, chunk) <= maxWidth) {
             fit = mid
             lo = mid + 1
@@ -76,12 +75,12 @@ function wrapSpans(
             hi = mid - 1
           }
         }
-        const chunk = rest.slice(0, fit)
+        const chunk = chars.slice(offset, offset + fit).join('')
         lines.push({
           spans: [{ ...token, text: chunk }],
           width: measure(doc, font, fontSize, chunk),
         })
-        rest = rest.slice(fit)
+        offset += fit
       }
       continue
     }
