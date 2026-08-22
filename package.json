@@ -1,0 +1,62 @@
+{
+  "name": "mesa-press",
+  "version": "0.1.0",
+  "description": "CLI Markdown → PDF de props imprimíveis para mesa de RPG (carta, cartaz, dataslate).",
+  "type": "module",
+  "license": "MIT",
+  "author": "Felipe Lippelt",
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "mesa-press": "dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flippelt/mesa-press.git"
+  },
+  "homepage": "https://github.com/flippelt/mesa-press#readme",
+  "bugs": "https://github.com/flippelt/mesa-press/issues",
+  "keywords": [
+    "ttrpg",
+    "rpg",
+    "pdf",
+    "markdown",
+    "cli",
+    "print",
+    "handout",
+    "tabletop"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "render:examples": "node dist/cli.js render examples/carta-vigia.md examples/cartaz-fenda.md examples/dataslate-union.md --out dist/pdfs/",
+    "prepublishOnly": "npm test && npm run build"
+  },
+  "dependencies": {
+    "pdfkit": "^0.19.1",
+    "qrcode": "^1.5.4",
+    "yaml": "^2.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "@types/pdfkit": "^0.17.3",
+    "@types/qrcode": "^1.5.6",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.8"
+  }
+}
