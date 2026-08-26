@@ -51,9 +51,12 @@ export const EDICT = {
 
 export const NEWSPAPER = {
   paper: '#f3efe2',
+  aged: '#ebe1c4',
   ink: '#161410',
   rule: '#2a2418',
   kicker: '#7a1f16',
+  stain: '#7a4a1e',
+  filler: '#4a4438',
 } as const
 
 export const TICKET = {

@@ -63,6 +63,38 @@ Texto curto da **Fenda**.
     expect(buffer.subarray(0, 4).toString('utf8')).toBe('%PDF')
   })
 
+  it('jornal clipping traz notícias de preenchimento', async () => {
+    const { buffer, slug } = await renderFile(join(examplesDir, 'jornal-fenda.md'))
+    expect(buffer.subarray(0, 4).toString('utf8')).toBe('%PDF')
+    const out = join(tmpDir, `${slug}.pdf`)
+    writeFileSync(out, buffer)
+    const text = extractText(out)
+    if (text !== null) {
+      expect(text).toMatch(/piano/i)
+      expect(text).toMatch(/Pedravale/i)
+    }
+  })
+
+  it('jornal vellum não traz preenchimento', async () => {
+    const buffer = await renderToBuffer(
+      parsePropSource(`---
+template: newspaper
+theme: vellum
+title: A Folha
+---
+Só a matéria principal.
+`),
+    )
+    expect(buffer.subarray(0, 4).toString('utf8')).toBe('%PDF')
+    const out = join(tmpDir, 'jornal-vellum.pdf')
+    writeFileSync(out, buffer)
+    const text = extractText(out)
+    if (text !== null) {
+      expect(text).toMatch(/matéria principal/i)
+      expect(text).not.toMatch(/piano/i)
+    }
+  })
+
   it('PDF com qr fica maior do que sem qr', async () => {
     const source = `---
 template: letter

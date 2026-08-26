@@ -39,6 +39,16 @@ ok
     expect(prop.frontmatter.theme).toBe('imperial')
   })
 
+  it('aplica tema clipping por padrão no jornal', () => {
+    const prop = parsePropSource(`---
+template: newspaper
+title: A Folha
+---
+ok
+`)
+    expect(prop.frontmatter.theme).toBe('clipping')
+  })
+
   it('falha sem title', () => {
     expect(() =>
       parsePropSource(`---

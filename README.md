@@ -61,7 +61,7 @@ date?: string
 seal?: crimson | gold | green | charcoal | none
 qr?: string
 eyebrow?: string
-theme?: vellum | imperial | amber | iron | brass | gunmetal
+theme?: vellum | imperial | amber | iron | brass | gunmetal | clipping
 ---
 
 Corpo em Markdown. **negrito**, *itálico*, headings, listas e parágrafos.
@@ -79,10 +79,11 @@ Imagens (`![alt](url)`) são ignoradas no MVP, com aviso no stderr.
 | `seal`     | não         | `none`     | Selo de cera (carta e édito) |
 | `qr`       | não         | —          | URL ou texto. QR 20 mm |
 | `eyebrow`  | não         | —          | Tarja / classificação / seção |
-| `theme`    | não         | ver abaixo | `imperial`/`amber` no dataslate; `iron`/`brass`/`gunmetal` na placa; `vellum` no resto |
+| `theme`    | não         | ver abaixo | `imperial`/`amber` no dataslate; `iron`/`brass`/`gunmetal` na placa; `clipping` no jornal; `vellum` no resto |
 
 `theme` no dataslate escolhe o fósforo (`imperial` verde, `amber` âmbar).
-Na **placa**, escolhe o metal. Nos outros templates o papel é fixo.
+Na **placa**, escolhe o metal. No **jornal**, `clipping` (padrão) desenha
+notícias de preenchimento nas laterais; `vellum` deixa o recorte limpo.
 
 ## Tamanhos
 
@@ -122,8 +123,9 @@ ORIGEM/DESTINO/DATA.
 **edict** — decreto. Moldura dourada, título central, selo de cera opcional.
 `eyebrow` padrão: POR DECRETO.
 
-**newspaper** — recorte de jornal. Cabeçalho grande, filetes, data/origem
-no meio.
+**newspaper** — recorte de jornal antigo. A matéria fica no centro;
+colunas laterais trazem notícias de preenchimento, cortadas pela borda.
+`theme: clipping` (padrão) ou `vellum` (só a matéria). QR no rodapé.
 
 **ticket** — passagem com talão perfurado à esquerda. `from`/`to` viram DE/PARA;
 QR no talão. Cai bem em A6.
