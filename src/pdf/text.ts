@@ -2,16 +2,26 @@ import type { Block, Inline } from '../types.js'
 import { FONT } from './fonts.js'
 import type { PDFDoc } from './pdfkit.js'
 
-export type FlowFamily = 'serif' | 'sans' | 'mono'
+export type FlowFamily = 'serif' | 'sans' | 'mono' | 'news' | 'letter' | 'typewriter' | 'script'
 
 export function fontFor(family: FlowFamily, span: Pick<Inline, 'bold' | 'italic' | 'mono'>): string {
   const bold = Boolean(span.bold)
   const italic = Boolean(span.italic)
-  if (span.mono || family === 'mono') {
-    return bold ? FONT.monoBold : FONT.mono
+  if (span.mono) return bold ? FONT.monoBold : FONT.mono
+  if (family === 'mono') return bold ? FONT.monoBold : FONT.mono
+  if (family === 'typewriter') return FONT.typewriter
+  if (family === 'script') return FONT.script
+  if (family === 'sans') return bold ? FONT.sansBold : FONT.sans
+  if (family === 'news') {
+    if (italic) return FONT.newsItalic
+    if (bold) return FONT.newsBold
+    return FONT.news
   }
-  if (family === 'sans') {
-    return bold ? FONT.sansBold : FONT.sans
+  if (family === 'letter') {
+    if (bold && italic) return FONT.letterBoldItalic
+    if (bold) return FONT.letterBold
+    if (italic) return FONT.letterItalic
+    return FONT.letter
   }
   if (bold && italic) return FONT.serifBoldItalic
   if (bold) return FONT.serifBold
@@ -35,9 +45,9 @@ function tokenize(spans: Inline[]): Inline[] {
   return out
 }
 
-type Line = { spans: Inline[]; width: number }
+export type Line = { spans: Inline[]; width: number }
 
-function wrapSpans(
+export function wrapSpans(
   doc: PDFDoc,
   spans: Inline[],
   maxWidth: number,
@@ -117,7 +127,7 @@ export type FlowStyle = {
   lineHeight: number
 }
 
-function drawLine(
+export function drawLine(
   doc: PDFDoc,
   line: Line,
   x: number,
@@ -126,8 +136,22 @@ function drawLine(
   family: FlowFamily,
   fontSize: number,
   color: string,
-  align: 'left' | 'center',
+  align: 'left' | 'center' | 'justify',
 ): void {
+  if (align === 'justify') {
+    const gaps = line.spans.filter((span) => /^\s+$/.test(span.text)).length
+    const extra = boxWidth - line.width
+    const bump = gaps > 0 && extra > 0 && extra < boxWidth * 0.35 ? extra / gaps : 0
+    let cursor = x
+    for (const span of line.spans) {
+      const font = fontFor(family, span)
+      doc.font(font).fontSize(fontSize).fillColor(color)
+      const w = doc.widthOfString(span.text)
+      doc.text(span.text, cursor, y, { lineBreak: false, continued: false })
+      cursor += w + (/^\s+$/.test(span.text) ? bump : 0)
+    }
+    return
+  }
   let cursor = align === 'center' ? x + (boxWidth - line.width) / 2 : x
   for (const span of line.spans) {
     const font = fontFor(family, span)

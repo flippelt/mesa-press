@@ -19,6 +19,10 @@ const examples = [
   { file: 'edito-fenda.md', word: 'fosso' },
   { file: 'jornal-fenda.md', word: 'Pedravale' },
   { file: 'passagem-valdoran.md', word: 'Caravana' },
+  { file: 'envelope-aereo.md', word: 'Destinatário' },
+  { file: 'cartao-postal.md', word: 'praça' },
+  { file: 'cheque-praca.md', word: 'Padeiro' },
+  { file: 'relatorio.md', word: 'inquérito' },
 ] as const
 
 function extractText(pdfPath: string): string | null {
@@ -61,6 +65,78 @@ Texto curto da **Fenda**.
 `),
     )
     expect(buffer.subarray(0, 4).toString('utf8')).toBe('%PDF')
+  })
+
+  it('jornal clipping traz notícias de preenchimento', async () => {
+    const { buffer, slug } = await renderFile(join(examplesDir, 'jornal-fenda.md'))
+    expect(buffer.subarray(0, 4).toString('utf8')).toBe('%PDF')
+    const out = join(tmpDir, `${slug}.pdf`)
+    writeFileSync(out, buffer)
+    const text = extractText(out)
+    if (text !== null) {
+      expect(text).toMatch(/ANÚNCIOS/i)
+      expect(text).toMatch(/padeiro/i)
+      expect(text).toMatch(/Pedravale/i)
+    }
+  })
+
+  it('jornal column e headline geram PDF', async () => {
+    const column = await renderToBuffer(
+      parsePropSource(`---
+template: newspaper
+theme: column
+title: A Folha
+---
+## Manchete da coluna
+
+Texto da matéria em uma coluna só.
+`),
+    )
+    const headline = await renderToBuffer(
+      parsePropSource(`---
+template: newspaper
+theme: headline
+title: A Folha
+---
+## Tochas se apagam
+
+Os vigias pedem calma.
+`),
+    )
+    expect(column.subarray(0, 4).toString('utf8')).toBe('%PDF')
+    expect(headline.subarray(0, 4).toString('utf8')).toBe('%PDF')
+    writeFileSync(join(tmpDir, 'jornal-column.pdf'), column)
+    writeFileSync(join(tmpDir, 'jornal-headline.pdf'), headline)
+    const columnText = extractText(join(tmpDir, 'jornal-column.pdf'))
+    const headlineText = extractText(join(tmpDir, 'jornal-headline.pdf'))
+    if (columnText !== null) {
+      expect(columnText).toMatch(/coluna só/i)
+      expect(columnText).not.toMatch(/ANÚNCIOS/i)
+    }
+    if (headlineText !== null) {
+      expect(headlineText).toMatch(/Tochas se apagam/i)
+      expect(headlineText).not.toMatch(/ANÚNCIOS/i)
+    }
+  })
+
+  it('jornal vellum não traz preenchimento', async () => {
+    const buffer = await renderToBuffer(
+      parsePropSource(`---
+template: newspaper
+theme: vellum
+title: A Folha
+---
+Só a matéria principal.
+`),
+    )
+    expect(buffer.subarray(0, 4).toString('utf8')).toBe('%PDF')
+    const out = join(tmpDir, 'jornal-vellum.pdf')
+    writeFileSync(out, buffer)
+    const text = extractText(out)
+    if (text !== null) {
+      expect(text).toMatch(/matéria principal/i)
+      expect(text).not.toMatch(/ANÚNCIOS/i)
+    }
   })
 
   it('PDF com qr fica maior do que sem qr', async () => {

@@ -28,10 +28,12 @@ export const METAL = {
 } as const
 
 export const TELEGRAM = {
-  paper: '#f3e6b0',
+  paper: '#e8d090',
   ink: '#1a140c',
   bar: '#1a140c',
-  urgent: '#7a1f16',
+  urgent: '#9c2a1c',
+  rule: '#3a2a10',
+  muted: '#5a4a28',
 } as const
 
 export const DOSSIER = {
@@ -50,10 +52,46 @@ export const EDICT = {
 } as const
 
 export const NEWSPAPER = {
-  paper: '#f3efe2',
-  ink: '#161410',
-  rule: '#2a2418',
+  paper: '#e8e6e1',
+  aged: '#e4e2dc',
+  page: '#f4f3f0',
+  ink: '#161616',
+  rule: '#2a2a28',
   kicker: '#7a1f16',
+  stain: '#6a6864',
+  filler: '#3e3e3c',
+} as const
+
+export const ENVELOPE = {
+  paper: '#efe6d2',
+  ink: '#2a1c10',
+  flap: '#e4d8be',
+  stripeRed: '#9c2a1c',
+  stripeBlue: '#2a4a7a',
+  stamp: '#9c2a1c',
+} as const
+
+export const POSTCARD = {
+  paper: '#e8e2d4',
+  ink: '#1a1610',
+  rule: '#6a6258',
+  stamp: '#2d6b32',
+} as const
+
+export const CHECK = {
+  paper: '#e4eee4',
+  ink: '#1a2218',
+  rule: '#7a9a7a',
+  line: '#c5d6c5',
+  bank: '#1a3a28',
+} as const
+
+export const REPORT = {
+  paper: '#efe6d4',
+  ink: '#1a140c',
+  stamp: '#9c2a1c',
+  hole: '#c4b090',
+  rule: '#8a7a60',
 } as const
 
 export const TICKET = {

@@ -9,6 +9,10 @@ import { drawLetter } from './pdf/letter.js'
 import { drawNewspaper } from './pdf/newspaper.js'
 import { drawPlate } from './pdf/plate.js'
 import { drawPoster } from './pdf/poster.js'
+import { drawCheck } from './pdf/check.js'
+import { drawEnvelope } from './pdf/envelope.js'
+import { drawPostcard } from './pdf/postcard.js'
+import { drawReport } from './pdf/report.js'
 import { drawTelegram } from './pdf/telegram.js'
 import { drawTicket } from './pdf/ticket.js'
 import { PAGE_SIZES } from './pdf/sizes.js'
@@ -50,6 +54,18 @@ export async function renderToBuffer(prop: PropDocument): Promise<Buffer> {
       break
     case 'ticket':
       drawTicket(doc, prop, page)
+      break
+    case 'envelope':
+      drawEnvelope(doc, prop, page)
+      break
+    case 'postcard':
+      drawPostcard(doc, prop, page)
+      break
+    case 'check':
+      drawCheck(doc, prop, page)
+      break
+    case 'report':
+      drawReport(doc, prop, page)
       break
     default: {
       const never: never = prop.frontmatter.template

@@ -11,7 +11,7 @@ Irmão impresso do [rpg-prop-kit](https://github.com/flippelt/rpg-prop-kit).
 O QR opcional pode apontar para o [campaign-codex](https://github.com/flippelt/campaign-codex)
 ou para o [Immersive Terminal](https://github.com/flippelt/Immersive-Terminal-for-RPGs).
 
-> ⚠️ **Status:** `v0.1.0`. API pode mudar.
+> ⚠️ **Status:** `v0.2.0`. API pode mudar.
 
 ## Requisitos
 
@@ -52,7 +52,7 @@ O último comando gera PDFs em `dist/pdfs/` (gitignored).
 
 ```yaml
 ---
-template: letter | poster | dataslate | plate | telegram | dossier | edict | newspaper | ticket
+template: letter | poster | dataslate | plate | telegram | dossier | edict | newspaper | ticket | envelope | postcard | check | report
 size: a5 | a6
 title: string
 from?: string
@@ -61,7 +61,7 @@ date?: string
 seal?: crimson | gold | green | charcoal | none
 qr?: string
 eyebrow?: string
-theme?: vellum | imperial | amber | iron | brass | gunmetal
+theme?: vellum | imperial | amber | iron | brass | gunmetal | clipping | column | headline
 ---
 
 Corpo em Markdown. **negrito**, *itálico*, headings, listas e parágrafos.
@@ -79,10 +79,12 @@ Imagens (`![alt](url)`) são ignoradas no MVP, com aviso no stderr.
 | `seal`     | não         | `none`     | Selo de cera (carta e édito) |
 | `qr`       | não         | —          | URL ou texto. QR 20 mm |
 | `eyebrow`  | não         | —          | Tarja / classificação / seção |
-| `theme`    | não         | ver abaixo | `imperial`/`amber` no dataslate; `iron`/`brass`/`gunmetal` na placa; `vellum` no resto |
+| `theme`    | não         | ver abaixo | `imperial`/`amber` no dataslate; `iron`/`brass`/`gunmetal` na placa; `clipping`/`column`/`headline` no jornal; `vellum` no resto |
 
 `theme` no dataslate escolhe o fósforo (`imperial` verde, `amber` âmbar).
-Na **placa**, escolhe o metal. Nos outros templates o papel é fixo.
+Na **placa**, escolhe o metal. No **jornal**: `clipping` (padrão, recorte
+com vizinhos e anúncios), `column` (uma coluna), `headline` (manchete),
+`vellum` (página limpa).
 
 ## Tamanhos
 
@@ -113,8 +115,8 @@ escuro). `theme: imperial` (padrão) ou `amber`.
 **plate** — placa de metal (rebites, degradê). `theme: iron` (padrão), `brass`
 ou `gunmetal`. Bom para aviso de setor / porta.
 
-**telegram** — fita amarela, cabeçalho DE/PARA/EM em caixa alta, corpo
-monoespaçado. `eyebrow` vira o carimbo do cabeçalho (`URGENTE`, etc.).
+**telegram** — ficha de telégrafo (DE/PARA, carimbo do `eyebrow`, corpo
+monoespaçado em linhas). QR no canto.
 
 **dossier** — pasta manila com aba, carimbo diagonal do `eyebrow`, ficha
 ORIGEM/DESTINO/DATA.
@@ -122,15 +124,28 @@ ORIGEM/DESTINO/DATA.
 **edict** — decreto. Moldura dourada, título central, selo de cera opcional.
 `eyebrow` padrão: POR DECRETO.
 
-**newspaper** — recorte de jornal. Cabeçalho grande, filetes, data/origem
-no meio.
+**newspaper** — recorte de jornal (papel cinza, borda irregular).
+`clipping` (padrão) inclui vizinhos e anúncios; `column` é uma coluna
+só; `headline` é manchete; `vellum` é a página limpa. QR no rodapé.
 
 **ticket** — passagem com talão perfurado à esquerda. `from`/`to` viram DE/PARA;
 QR no talão. Cai bem em A6.
 
-Fontes: [Liberation](https://github.com/liberationfonts/liberation-fonts)
-(Serif / Sans / Mono) empacotadas em `fonts/` — SIL OFL, ver
-`fonts/LICENSE-LIBERATION`. Sem Google Fonts. Sem as AFM padrão do PDFKit
+**envelope** — envelope com aba, remetente, destinatário e selo. `eyebrow: aéreo`
+(ou airmail) desenha as listras. QR no selo.
+
+**postcard** — cartão postal: recado à esquerda, endereço à direita, selo.
+Cai bem em A6.
+
+**check** — cheque. `title` é o banco, `to` o beneficiário, `from` assina,
+`eyebrow` o valor. O corpo vira a quantia por extenso.
+
+**report** — ficha datilografada. `eyebrow` vira o carimbo (CONFIDENCIAL, etc.).
+
+Fontes empacotadas em `fonts/` (sem baixar na hora):
+Liberation (corpo geral), Old Standard (jornal), Crimson Text (carta),
+Special Elite (telegrama e relatório), Pinyon Script (assinatura).
+SIL OFL, salvo Special Elite (Apache 2.0). Sem as AFM do PDFKit
 (elas partem acentos do português).
 
 Metadados do PDF: `Title` = título do prop, `Author` = Felipe Lippelt,
@@ -151,6 +166,10 @@ Um Markdown por template em `examples/`:
 | `examples/edito-fenda.md` | edict |
 | `examples/jornal-fenda.md` | newspaper |
 | `examples/passagem-valdoran.md` | ticket |
+| `examples/envelope-aereo.md` | envelope |
+| `examples/cartao-postal.md` | postcard |
+| `examples/cheque-praca.md` | check |
+| `examples/relatorio.md` | report |
 
 ## Licença
 
