@@ -1,6 +1,6 @@
 {
   "name": "mesa-press",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "CLI Markdown → PDF de props imprimíveis para mesa de RPG (carta, cartaz, jornal, telegrama, envelope, postal, cheque, relatório…).",
   "type": "module",
   "license": "MIT",

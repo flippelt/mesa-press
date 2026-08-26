@@ -11,7 +11,7 @@ Irmão impresso do [rpg-prop-kit](https://github.com/flippelt/rpg-prop-kit).
 O QR opcional pode apontar para o [campaign-codex](https://github.com/flippelt/campaign-codex)
 ou para o [Immersive Terminal](https://github.com/flippelt/Immersive-Terminal-for-RPGs).
 
-> ⚠️ **Status:** `v0.1.0`. API pode mudar.
+> ⚠️ **Status:** `v0.2.0`. API pode mudar.
 
 ## Requisitos
 
