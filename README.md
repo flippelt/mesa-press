@@ -7,6 +7,10 @@ Motor de impressão: Markdown com frontmatter YAML → PDF **A5** ou **A6**
 (carta, cartaz, dataslate, placa, telegrama, dossiê, édito, jornal ou
 passagem). Você passa o arquivo; o CLI gera o PDF.
 
+Irmão impresso do [rpg-prop-kit](https://github.com/flippelt/rpg-prop-kit).
+O QR opcional pode apontar para o [campaign-codex](https://github.com/flippelt/campaign-codex)
+ou para o [Immersive Terminal](https://github.com/flippelt/Immersive-Terminal-for-RPGs).
+
 > ⚠️ **Status:** `v0.1.0`. API pode mudar.
 
 ## Requisitos
