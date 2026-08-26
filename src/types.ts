@@ -19,6 +19,8 @@ export const THEMES = [
   'brass',
   'gunmetal',
   'clipping',
+  'column',
+  'headline',
 ] as const
 
 export type TemplateName = (typeof TEMPLATES)[number]

@@ -76,6 +76,45 @@ Texto curto da **Fenda**.
     }
   })
 
+  it('jornal column e headline geram PDF', async () => {
+    const column = await renderToBuffer(
+      parsePropSource(`---
+template: newspaper
+theme: column
+title: A Folha
+---
+## Manchete da coluna
+
+Texto da matéria em uma coluna só.
+`),
+    )
+    const headline = await renderToBuffer(
+      parsePropSource(`---
+template: newspaper
+theme: headline
+title: A Folha
+---
+## Tochas se apagam
+
+Os vigias pedem calma.
+`),
+    )
+    expect(column.subarray(0, 4).toString('utf8')).toBe('%PDF')
+    expect(headline.subarray(0, 4).toString('utf8')).toBe('%PDF')
+    writeFileSync(join(tmpDir, 'jornal-column.pdf'), column)
+    writeFileSync(join(tmpDir, 'jornal-headline.pdf'), headline)
+    const columnText = extractText(join(tmpDir, 'jornal-column.pdf'))
+    const headlineText = extractText(join(tmpDir, 'jornal-headline.pdf'))
+    if (columnText !== null) {
+      expect(columnText).toMatch(/coluna só/i)
+      expect(columnText).not.toMatch(/ANÚNCIOS/i)
+    }
+    if (headlineText !== null) {
+      expect(headlineText).toMatch(/Tochas se apagam/i)
+      expect(headlineText).not.toMatch(/ANÚNCIOS/i)
+    }
+  })
+
   it('jornal vellum não traz preenchimento', async () => {
     const buffer = await renderToBuffer(
       parsePropSource(`---

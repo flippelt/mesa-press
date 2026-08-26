@@ -49,6 +49,25 @@ ok
     expect(prop.frontmatter.theme).toBe('clipping')
   })
 
+  it('aceita temas column e headline no jornal', () => {
+    const column = parsePropSource(`---
+template: newspaper
+theme: column
+title: A Folha
+---
+ok
+`)
+    const headline = parsePropSource(`---
+template: newspaper
+theme: headline
+title: A Folha
+---
+ok
+`)
+    expect(column.frontmatter.theme).toBe('column')
+    expect(headline.frontmatter.theme).toBe('headline')
+  })
+
   it('falha sem title', () => {
     expect(() =>
       parsePropSource(`---

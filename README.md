@@ -61,7 +61,7 @@ date?: string
 seal?: crimson | gold | green | charcoal | none
 qr?: string
 eyebrow?: string
-theme?: vellum | imperial | amber | iron | brass | gunmetal | clipping
+theme?: vellum | imperial | amber | iron | brass | gunmetal | clipping | column | headline
 ---
 
 Corpo em Markdown. **negrito**, *itálico*, headings, listas e parágrafos.
@@ -79,11 +79,12 @@ Imagens (`![alt](url)`) são ignoradas no MVP, com aviso no stderr.
 | `seal`     | não         | `none`     | Selo de cera (carta e édito) |
 | `qr`       | não         | —          | URL ou texto. QR 20 mm |
 | `eyebrow`  | não         | —          | Tarja / classificação / seção |
-| `theme`    | não         | ver abaixo | `imperial`/`amber` no dataslate; `iron`/`brass`/`gunmetal` na placa; `clipping` no jornal; `vellum` no resto |
+| `theme`    | não         | ver abaixo | `imperial`/`amber` no dataslate; `iron`/`brass`/`gunmetal` na placa; `clipping`/`column`/`headline` no jornal; `vellum` no resto |
 
 `theme` no dataslate escolhe o fósforo (`imperial` verde, `amber` âmbar).
-Na **placa**, escolhe o metal. No **jornal**, `clipping` (padrão) desenha
-notícias de preenchimento nas laterais; `vellum` deixa o recorte limpo.
+Na **placa**, escolhe o metal. No **jornal**: `clipping` (padrão, recorte
+com vizinhos e anúncios), `column` (uma coluna), `headline` (manchete),
+`vellum` (página limpa).
 
 ## Tamanhos
 
@@ -114,8 +115,8 @@ escuro). `theme: imperial` (padrão) ou `amber`.
 **plate** — placa de metal (rebites, degradê). `theme: iron` (padrão), `brass`
 ou `gunmetal`. Bom para aviso de setor / porta.
 
-**telegram** — fita amarela, cabeçalho DE/PARA/EM em caixa alta, corpo
-monoespaçado. `eyebrow` vira o carimbo do cabeçalho (`URGENTE`, etc.).
+**telegram** — ficha de telégrafo (DE/PARA, carimbo do `eyebrow`, corpo
+monoespaçado em linhas). QR no canto.
 
 **dossier** — pasta manila com aba, carimbo diagonal do `eyebrow`, ficha
 ORIGEM/DESTINO/DATA.
@@ -123,9 +124,9 @@ ORIGEM/DESTINO/DATA.
 **edict** — decreto. Moldura dourada, título central, selo de cera opcional.
 `eyebrow` padrão: POR DECRETO.
 
-**newspaper** — recorte de jornal antigo (borda irregular, manchete,
-matéria em coluna, anúncios e notícias vizinhas cortadas na margem).
-`theme: clipping` (padrão) ou `vellum` (página limpa). QR no rodapé.
+**newspaper** — recorte de jornal (papel cinza, borda irregular).
+`clipping` (padrão) inclui vizinhos e anúncios; `column` é uma coluna
+só; `headline` é manchete; `vellum` é a página limpa. QR no rodapé.
 
 **ticket** — passagem com talão perfurado à esquerda. `from`/`to` viram DE/PARA;
 QR no talão. Cai bem em A6.

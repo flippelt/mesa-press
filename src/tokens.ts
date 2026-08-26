@@ -28,10 +28,12 @@ export const METAL = {
 } as const
 
 export const TELEGRAM = {
-  paper: '#f3e6b0',
+  paper: '#e8d090',
   ink: '#1a140c',
   bar: '#1a140c',
-  urgent: '#7a1f16',
+  urgent: '#9c2a1c',
+  rule: '#3a2a10',
+  muted: '#5a4a28',
 } as const
 
 export const DOSSIER = {
@@ -50,14 +52,14 @@ export const EDICT = {
 } as const
 
 export const NEWSPAPER = {
-  paper: '#f3efe2',
-  aged: '#e4d7b4',
-  page: '#f4efe4',
-  ink: '#1a1610',
-  rule: '#2a2418',
+  paper: '#e8e6e1',
+  aged: '#e4e2dc',
+  page: '#f4f3f0',
+  ink: '#161616',
+  rule: '#2a2a28',
   kicker: '#7a1f16',
-  stain: '#7a4a1e',
-  filler: '#4a4438',
+  stain: '#6a6864',
+  filler: '#3e3e3c',
 } as const
 
 export const TICKET = {

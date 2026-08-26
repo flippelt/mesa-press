@@ -1,5 +1,5 @@
 import { NEWSPAPER } from '../tokens.js'
-import type { Block, Inline, PropDocument } from '../types.js'
+import type { Block, Inline, PropDocument, ThemeName } from '../types.js'
 import { addSameSizePage } from './document.js'
 import { FONT, isAscii } from './fonts.js'
 import type { PDFDoc } from './pdfkit.js'
@@ -149,17 +149,9 @@ function newsprintTexture(
 ): void {
   doc.save()
   doc.rect(x, y, w, h).clip()
-  doc.strokeColor('#c4b48a').opacity(0.12).lineWidth(0.25)
-  for (let i = 0; i < 28; i++) {
-    const yy = y + rnd() * h
-    doc
-      .moveTo(x, yy)
-      .lineTo(x + w, yy + (rnd() - 0.5) * mm(2))
-      .stroke()
-  }
-  doc.fillColor('#5a4a32').opacity(0.07)
-  for (let i = 0; i < 140; i++) {
-    doc.circle(x + rnd() * w, y + rnd() * h, 0.25 + rnd() * 0.55).fill()
+  doc.fillColor('#5c5c58').opacity(0.09)
+  for (let i = 0; i < 220; i++) {
+    doc.circle(x + rnd() * w, y + rnd() * h, 0.2 + rnd() * 0.5).fill()
   }
   doc.restore()
 }
@@ -311,9 +303,9 @@ type ColumnRow = {
 }
 
 function columnRows(doc: PDFDoc, blocks: Block[], width: number): ColumnRow[] {
-  const size = 8
-  const headingSize = 9.5
-  const lineHeight = 1.16
+  const size = 9
+  const headingSize = 10.5
+  const lineHeight = 1.18
   const family = 'serif' as const
   const color = NEWSPAPER.ink
   const rows: ColumnRow[] = []
@@ -447,7 +439,13 @@ function placeColumns(
   }
 }
 
+type ClipKind = 'clipping' | 'column' | 'headline'
 type ClipLayout = ClipCols & { columns: 1 | 2; qr?: { x: number; y: number; size: number } }
+
+function clipKind(theme: ThemeName): ClipKind | 'plain' {
+  if (theme === 'column' || theme === 'headline' || theme === 'clipping') return theme
+  return 'plain'
+}
 
 function measureHeader(
   doc: PDFDoc,
@@ -455,12 +453,14 @@ function measureHeader(
   headline: Inline[] | undefined,
   storyW: number,
   compact: boolean,
+  kind: ClipKind,
 ): number {
-  let h = compact ? mm(9) : mm(12)
-  h += mm(8.5)
+  let h = 0
+  if (kind === 'clipping') h += compact ? mm(9) : mm(12)
+  h += mm(8)
   if (fm.eyebrow) h += mm(4)
   if (headline) {
-    const hSize = compact ? 12 : 15
+    const hSize = kind === 'headline' ? (compact ? 16 : 22) : compact ? 12 : 15
     const lines = wrapSpans(
       doc,
       headline.map((span) => ({ ...span, bold: true })),
@@ -468,7 +468,7 @@ function measureHeader(
       'serif',
       hSize,
     )
-    h += lines.length * hSize * 1.12 + mm(5.5)
+    h += lines.length * hSize * 1.08 + mm(5)
   }
   return h
 }
@@ -480,36 +480,41 @@ function paintClippingChrome(
   running: boolean,
   headline: Inline[] | undefined,
   body: Block[],
+  kind: ClipKind,
 ): ClipLayout {
   const { frontmatter: fm } = prop
   const compact = page.name === 'a6'
   const seed = hashString(`${fm.title}\0${fm.date ?? ''}\0${fm.from ?? ''}`)
   const rndPaper = mulberry32(seed)
   const pad = mm(compact ? 6 : 8)
-  const paperW = page.width - 2 * pad
+  const widthRatio = kind === 'column' ? 0.64 : kind === 'headline' ? 0.92 : 1
+  const paperW = (page.width - 2 * pad) * widthRatio
   const inset = mm(compact ? 4 : 5.5)
-  const sliverW = compact ? mm(11) : mm(15)
-  const gap = mm(compact ? 2.4 : 3.2)
+  const withSliver = kind === 'clipping'
+  const withAds = kind === 'clipping'
+  const sliverW = withSliver ? (compact ? mm(11) : mm(15)) : 0
+  const gap = withSliver ? mm(compact ? 2.4 : 3.2) : 0
   const storyW = paperW - 2 * inset - sliverW - gap
   const colGap = mm(compact ? 2.8 : 3.4)
-  const colW = (storyW - colGap) / 2
+  const colW = Math.max(mm(20), (storyW - colGap) / 2)
   const qrSize = mm(compact ? 14 : 18)
-  const adH = mm(compact ? 16 : 18)
+  const adH = withAds ? mm(compact ? 16 : 18) : 0
   const qrGap = fm.qr ? qrSize + mm(4) : 0
-  const headerH = measureHeader(doc, fm, running ? undefined : headline, storyW, compact)
+  const headerH = measureHeader(doc, fm, running ? undefined : headline, storyW, compact, kind)
   const twoColRows = columnRows(doc, body, colW)
   const oneColRows = columnRows(doc, body, storyW)
   const twoTotal = twoColRows.reduce((sum, row) => sum + row.height + row.gap, 0)
   const oneTotal = oneColRows.reduce((sum, row) => sum + row.height + row.gap, 0)
-  const columns: 1 | 2 = twoTotal > mm(32) ? 2 : 1
-  const bodyH = Math.max(mm(14), columns === 2 ? Math.ceil(twoTotal / 2) + mm(2) : oneTotal + mm(1))
+  const columns: 1 | 2 =
+    kind === 'column' || kind === 'headline' ? 1 : twoTotal > mm(32) ? 2 : 1
+  const bodyH = Math.max(mm(12), columns === 2 ? Math.ceil(twoTotal / 2) + mm(2) : oneTotal + mm(1))
   const maxH = page.height - 2 * pad
-  const minH = mm(compact ? 64 : 78)
+  const minH = mm(kind === 'headline' ? (compact ? 42 : 52) : compact ? 58 : 70)
   let paperH = inset * 2 + headerH + bodyH + mm(2) + adH + qrGap
   if (running || paperH > maxH) paperH = maxH
   else paperH = Math.min(maxH, Math.max(minH, paperH))
   const paper = {
-    x: pad,
+    x: (page.width - paperW) / 2,
     y: (page.height - paperH) / 2,
     w: paperW,
     h: paperH,
@@ -520,7 +525,7 @@ function paintClippingChrome(
   doc.save()
   doc.translate(1.6, 2.2)
   tornPaperPath(doc, paper.x, paper.y, paper.w, paper.h, mulberry32(seed))
-  doc.fillColor('#2a2218').fillOpacity(0.16).fill()
+  doc.fillColor('#1c1c1a').fillOpacity(0.18).fill()
   doc.restore()
 
   tornPaperPath(doc, paper.x, paper.y, paper.w, paper.h, mulberry32(seed))
@@ -539,22 +544,26 @@ function paintClippingChrome(
   const innerBottom = paper.y + paper.h - inset
   const storyX = innerX + sliverW + gap
 
-  drawFillerColumn(
-    doc,
-    NEWSPAPER_FILLERS,
-    paper.x + mm(1.6),
-    paper.y + mm(1),
-    sliverW + mm(1),
-    innerBottom,
-    hashString(`${fm.title}|sliver|${running ? 1 : 0}`),
-  )
-  columnRule(doc, storyX - gap * 0.5, innerY, innerBottom - adH - qrGap - mm(2))
+  if (withSliver) {
+    drawFillerColumn(
+      doc,
+      NEWSPAPER_FILLERS,
+      paper.x + mm(1.6),
+      paper.y + mm(1),
+      sliverW + mm(1),
+      innerBottom,
+      hashString(`${fm.title}|sliver|${running ? 1 : 0}`),
+    )
+    columnRule(doc, storyX - gap * 0.5, innerY, innerBottom - adH - qrGap - mm(2))
+  }
 
   let y = innerY
-  doc.font(FONT.serifBold).fontSize(compact ? 13 : 17).fillColor(NEWSPAPER.ink)
-  const mast = fm.title.toUpperCase()
-  doc.text(mast, storyX, y, { lineBreak: false })
-  y += compact ? mm(7) : mm(9.5)
+  if (kind === 'clipping') {
+    doc.font(FONT.serifBold).fontSize(compact ? 13 : 17).fillColor(NEWSPAPER.ink)
+    const mast = fm.title.toUpperCase()
+    doc.text(mast, storyX, y, { lineBreak: false })
+    y += compact ? mm(7) : mm(9.5)
+  }
 
   const leftBit = (fm.date ?? fm.from ?? '').toUpperCase()
   const rightBit = (fm.from && fm.date ? fm.from : fm.to ?? '').toUpperCase()
@@ -581,22 +590,37 @@ function paintClippingChrome(
   }
 
   if (headline && !running) {
-    const hSize = compact ? 12 : 15
-    const lines = wrapSpans(doc, headline.map((span) => ({ ...span, bold: true })), storyW, 'serif', hSize)
-    const row = hSize * 1.12
+    const hSize = kind === 'headline' ? (compact ? 16 : 22) : compact ? 12 : 15
+    const lines = wrapSpans(
+      doc,
+      headline.map((span) => ({ ...span, bold: true })),
+      storyW,
+      'serif',
+      hSize,
+    )
+    const row = hSize * 1.08
     for (const line of lines) {
       drawLine(doc, line, storyX, y, storyW, 'serif', hSize, NEWSPAPER.ink, 'left')
       y += row
     }
     y += mm(2)
     doc.save()
-    doc.strokeColor(NEWSPAPER.rule).lineWidth(0.45)
+    doc.strokeColor(NEWSPAPER.rule).lineWidth(kind === 'headline' ? 1.1 : 0.45)
     doc
       .moveTo(storyX, y)
       .lineTo(storyX + storyW, y)
       .stroke()
     doc.restore()
-    y += mm(3.5)
+    y += mm(3.2)
+  } else if (kind === 'headline' && !running) {
+    const hSize = compact ? 16 : 22
+    const lines = wrapSpans(doc, [{ text: fm.title, bold: true }], storyW, 'serif', hSize)
+    const row = hSize * 1.08
+    for (const line of lines) {
+      drawLine(doc, line, storyX, y, storyW, 'serif', hSize, NEWSPAPER.ink, 'left')
+      y += row
+    }
+    y += mm(5)
   }
 
   const adY = innerBottom - adH - qrGap
@@ -614,7 +638,7 @@ function paintClippingChrome(
   }
   if (columns === 2) columnRule(doc, col2.x - colGap * 0.5, y, Math.min(adY - mm(1), y + bodyH))
 
-  drawClassifieds(doc, storyX, adY, storyW, adH, hashString(`${fm.title}|ads`))
+  if (withAds) drawClassifieds(doc, storyX, adY, storyW, adH, hashString(`${fm.title}|ads`))
 
   doc.restore()
 
@@ -629,15 +653,16 @@ function paintClippingChrome(
   return layout
 }
 
-function drawClippingNewspaper(doc: PDFDoc, prop: PropDocument, page: PageBox): void {
+function drawClippingNewspaper(doc: PDFDoc, prop: PropDocument, page: PageBox, kind: ClipKind): void {
   const { headline, body } = splitHeadline(prop.blocks)
-  let layout = paintClippingChrome(doc, prop, page, false, headline, body)
+  let layout = paintClippingChrome(doc, prop, page, false, headline, body, kind)
   const onNewPage = (): ClipCols => {
     addSameSizePage(doc, page.width, page.height)
-    layout = paintClippingChrome(doc, prop, page, true, headline, body)
+    layout = paintClippingChrome(doc, prop, page, true, headline, body, kind)
     return { col1: layout.col1, col2: layout.col2 }
   }
 
+  doc.fillOpacity(1)
   placeColumns(
     { col1: layout.col1, col2: layout.col2 },
     onNewPage,
@@ -728,6 +753,7 @@ function drawPlainNewspaper(doc: PDFDoc, prop: PropDocument, page: PageBox): voi
 }
 
 export function drawNewspaper(doc: PDFDoc, prop: PropDocument, page: PageBox): void {
-  if (prop.frontmatter.theme === 'clipping') drawClippingNewspaper(doc, prop, page)
-  else drawPlainNewspaper(doc, prop, page)
+  const kind = clipKind(prop.frontmatter.theme)
+  if (kind === 'plain') drawPlainNewspaper(doc, prop, page)
+  else drawClippingNewspaper(doc, prop, page, kind)
 }
