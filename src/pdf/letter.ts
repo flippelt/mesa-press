@@ -72,7 +72,7 @@ export function drawLetter(doc: PDFDoc, prop: PropDocument, page: PageBox): void
     drawChrome(doc, page, margin)
     let y = margin + mm(compact ? 7 : 9)
 
-    doc.font(FONT.serifBold).fontSize(compact ? 11 : 14).fillColor(VELLUM.ink)
+    doc.font(FONT.letterBold).fontSize(compact ? 11 : 14).fillColor(VELLUM.ink)
     const title = running ? fm.title : fm.title.toUpperCase()
     doc.text(title, innerX, y, {
       width: innerW,
@@ -129,7 +129,7 @@ export function drawLetter(doc: PDFDoc, prop: PropDocument, page: PageBox): void
     prop.blocks,
     box,
     {
-      family: 'serif',
+      family: 'letter',
       color: VELLUM.ink,
       align: 'left',
       paragraphSize: compact ? 9.5 : 11,
@@ -147,6 +147,16 @@ export function drawLetter(doc: PDFDoc, prop: PropDocument, page: PageBox): void
     doc.strokeColor(VELLUM.rule).lineWidth(0.4)
     doc.rect(qx - 1.2, qy - 1.2, qrSize + 2.4, qrSize + 2.4).stroke()
     doc.restore()
+  }
+
+  if (fm.from) {
+    const signX = fm.qr ? margin + mm(8) + qrSize : innerX
+    const signY = page.height - margin - mm(compact ? 14 : 16)
+    doc.font(FONT.script).fontSize(compact ? 15 : 18).fillColor(VELLUM.ink)
+    doc.text(fm.from, signX, signY, {
+      width: innerW * 0.5,
+      lineBreak: false,
+    })
   }
 
   if (palette) {

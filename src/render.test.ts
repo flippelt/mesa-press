@@ -19,6 +19,10 @@ const examples = [
   { file: 'edito-fenda.md', word: 'fosso' },
   { file: 'jornal-fenda.md', word: 'Pedravale' },
   { file: 'passagem-valdoran.md', word: 'Caravana' },
+  { file: 'envelope-aereo.md', word: 'Destinatário' },
+  { file: 'cartao-postal.md', word: 'praça' },
+  { file: 'cheque-praca.md', word: 'Padeiro' },
+  { file: 'relatorio.md', word: 'inquérito' },
 ] as const
 
 function extractText(pdfPath: string): string | null {

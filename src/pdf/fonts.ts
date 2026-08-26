@@ -13,6 +13,15 @@ export const FONT = {
   sansBold: 'MesaSans-Bold',
   mono: 'MesaMono',
   monoBold: 'MesaMono-Bold',
+  news: 'MesaNews',
+  newsBold: 'MesaNews-Bold',
+  newsItalic: 'MesaNews-Italic',
+  letter: 'MesaLetter',
+  letterBold: 'MesaLetter-Bold',
+  letterItalic: 'MesaLetter-Italic',
+  letterBoldItalic: 'MesaLetter-BoldItalic',
+  typewriter: 'MesaTypewriter',
+  script: 'MesaScript',
 } as const
 
 const FILES: Record<string, string> = {
@@ -24,6 +33,15 @@ const FILES: Record<string, string> = {
   [FONT.sansBold]: 'LiberationSans-Bold.ttf',
   [FONT.mono]: 'LiberationMono-Regular.ttf',
   [FONT.monoBold]: 'LiberationMono-Bold.ttf',
+  [FONT.news]: 'OldStandard-Regular.ttf',
+  [FONT.newsBold]: 'OldStandard-Bold.ttf',
+  [FONT.newsItalic]: 'OldStandard-Italic.ttf',
+  [FONT.letter]: 'CrimsonText-Regular.ttf',
+  [FONT.letterBold]: 'CrimsonText-Bold.ttf',
+  [FONT.letterItalic]: 'CrimsonText-Italic.ttf',
+  [FONT.letterBoldItalic]: 'CrimsonText-BoldItalic.ttf',
+  [FONT.typewriter]: 'SpecialElite-Regular.ttf',
+  [FONT.script]: 'PinyonScript-Regular.ttf',
 }
 
 /** Standard AFM fonts mangle Portuguese (í/ã/ç) once characterSpacing or wrap kicks in. */

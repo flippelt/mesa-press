@@ -98,7 +98,7 @@ export function drawTelegram(doc: PDFDoc, prop: PropDocument, page: PageBox): vo
       lineBreak: false,
     })
     if (fm.date) {
-      doc.font(FONT.mono).fontSize(6.5).fillColor(TELEGRAM.ink)
+      doc.font(FONT.typewriter).fontSize(6.5).fillColor(TELEGRAM.ink)
       doc.text(fm.date, formX + formW - sideW + mm(1.4), headY + mm(9), {
         width: sideW - mm(2.8),
         align: 'center',
@@ -111,7 +111,7 @@ export function drawTelegram(doc: PDFDoc, prop: PropDocument, page: PageBox): vo
         if (!value) return
         doc.font(FONT.sansBold).fontSize(6.5).fillColor(TELEGRAM.muted)
         doc.text(label, innerX, y, { width: mm(14), lineBreak: false })
-        doc.font(FONT.mono).fontSize(compact ? 8.5 : 9.5).fillColor(TELEGRAM.ink)
+        doc.font(FONT.typewriter).fontSize(compact ? 8.5 : 9.5).fillColor(TELEGRAM.ink)
         doc.text(value.toUpperCase(), innerX + mm(16), y - 0.8, {
           width: innerW - mm(16),
           lineBreak: false,
@@ -129,7 +129,7 @@ export function drawTelegram(doc: PDFDoc, prop: PropDocument, page: PageBox): vo
       stamp(doc, fm.eyebrow, formX + formW - mm(compact ? 22 : 28), formY + headH + mm(10))
     }
 
-    doc.font(FONT.sansBold).fontSize(compact ? 9 : 10).fillColor(TELEGRAM.ink)
+    doc.font(FONT.typewriter).fontSize(compact ? 9 : 10).fillColor(TELEGRAM.ink)
     doc.text(fm.title.toUpperCase(), innerX, y, { width: innerW, lineBreak: false })
     y += mm(compact ? 6 : 7)
     formRule(doc, innerX, innerX + innerW, y - mm(1), 0.7)
@@ -161,7 +161,7 @@ export function drawTelegram(doc: PDFDoc, prop: PropDocument, page: PageBox): vo
     prop.blocks,
     box,
     {
-      family: 'mono',
+      family: 'typewriter',
       color: TELEGRAM.ink,
       align: 'left',
       paragraphSize: compact ? 8.5 : 9.5,

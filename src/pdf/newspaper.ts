@@ -306,7 +306,7 @@ function columnRows(doc: PDFDoc, blocks: Block[], width: number): ColumnRow[] {
   const size = 9
   const headingSize = 10.5
   const lineHeight = 1.18
-  const family = 'serif' as const
+  const family = 'news' as const
   const color = NEWSPAPER.ink
   const rows: ColumnRow[] = []
 
@@ -465,7 +465,7 @@ function measureHeader(
       doc,
       headline.map((span) => ({ ...span, bold: true })),
       storyW,
-      'serif',
+      'news',
       hSize,
     )
     h += lines.length * hSize * 1.08 + mm(5)
@@ -559,7 +559,7 @@ function paintClippingChrome(
 
   let y = innerY
   if (kind === 'clipping') {
-    doc.font(FONT.serifBold).fontSize(compact ? 13 : 17).fillColor(NEWSPAPER.ink)
+    doc.font(FONT.newsBold).fontSize(compact ? 13 : 17).fillColor(NEWSPAPER.ink)
     const mast = fm.title.toUpperCase()
     doc.text(mast, storyX, y, { lineBreak: false })
     y += compact ? mm(7) : mm(9.5)
@@ -595,12 +595,12 @@ function paintClippingChrome(
       doc,
       headline.map((span) => ({ ...span, bold: true })),
       storyW,
-      'serif',
+      'news',
       hSize,
     )
     const row = hSize * 1.08
     for (const line of lines) {
-      drawLine(doc, line, storyX, y, storyW, 'serif', hSize, NEWSPAPER.ink, 'left')
+      drawLine(doc, line, storyX, y, storyW, 'news', hSize, NEWSPAPER.ink, 'left')
       y += row
     }
     y += mm(2)
@@ -614,10 +614,10 @@ function paintClippingChrome(
     y += mm(3.2)
   } else if (kind === 'headline' && !running) {
     const hSize = compact ? 16 : 22
-    const lines = wrapSpans(doc, [{ text: fm.title, bold: true }], storyW, 'serif', hSize)
+    const lines = wrapSpans(doc, [{ text: fm.title, bold: true }], storyW, 'news', hSize)
     const row = hSize * 1.08
     for (const line of lines) {
-      drawLine(doc, line, storyX, y, storyW, 'serif', hSize, NEWSPAPER.ink, 'left')
+      drawLine(doc, line, storyX, y, storyW, 'news', hSize, NEWSPAPER.ink, 'left')
       y += row
     }
     y += mm(5)
@@ -701,7 +701,7 @@ function drawPlainNewspaper(doc: PDFDoc, prop: PropDocument, page: PageBox): voi
       y += mm(5)
     }
 
-    doc.font(FONT.serifBold).fontSize(compact ? 16 : 22).fillColor(NEWSPAPER.ink)
+    doc.font(FONT.newsBold).fontSize(compact ? 16 : 22).fillColor(NEWSPAPER.ink)
     doc.text(fm.title.toUpperCase(), innerX, y, { width: innerW, align: 'center' })
     y += compact ? mm(12) : mm(16)
 
@@ -735,7 +735,7 @@ function drawPlainNewspaper(doc: PDFDoc, prop: PropDocument, page: PageBox): voi
     prop.blocks,
     box,
     {
-      family: 'serif',
+      family: 'news',
       color: NEWSPAPER.ink,
       align: 'left',
       paragraphSize: compact ? 8.5 : 10,

@@ -62,6 +62,38 @@ export const NEWSPAPER = {
   filler: '#3e3e3c',
 } as const
 
+export const ENVELOPE = {
+  paper: '#efe6d2',
+  ink: '#2a1c10',
+  flap: '#e4d8be',
+  stripeRed: '#9c2a1c',
+  stripeBlue: '#2a4a7a',
+  stamp: '#9c2a1c',
+} as const
+
+export const POSTCARD = {
+  paper: '#e8e2d4',
+  ink: '#1a1610',
+  rule: '#6a6258',
+  stamp: '#2d6b32',
+} as const
+
+export const CHECK = {
+  paper: '#e4eee4',
+  ink: '#1a2218',
+  rule: '#7a9a7a',
+  line: '#c5d6c5',
+  bank: '#1a3a28',
+} as const
+
+export const REPORT = {
+  paper: '#efe6d4',
+  ink: '#1a140c',
+  stamp: '#9c2a1c',
+  hole: '#c4b090',
+  rule: '#8a7a60',
+} as const
+
 export const TICKET = {
   paper: '#f7edd4',
   stub: '#ead7b0',

@@ -52,7 +52,7 @@ O último comando gera PDFs em `dist/pdfs/` (gitignored).
 
 ```yaml
 ---
-template: letter | poster | dataslate | plate | telegram | dossier | edict | newspaper | ticket
+template: letter | poster | dataslate | plate | telegram | dossier | edict | newspaper | ticket | envelope | postcard | check | report
 size: a5 | a6
 title: string
 from?: string
@@ -131,9 +131,21 @@ só; `headline` é manchete; `vellum` é a página limpa. QR no rodapé.
 **ticket** — passagem com talão perfurado à esquerda. `from`/`to` viram DE/PARA;
 QR no talão. Cai bem em A6.
 
-Fontes: [Liberation](https://github.com/liberationfonts/liberation-fonts)
-(Serif / Sans / Mono) empacotadas em `fonts/` — SIL OFL, ver
-`fonts/LICENSE-LIBERATION`. Sem Google Fonts. Sem as AFM padrão do PDFKit
+**envelope** — envelope com aba, remetente, destinatário e selo. `eyebrow: aéreo`
+(ou airmail) desenha as listras. QR no selo.
+
+**postcard** — cartão postal: recado à esquerda, endereço à direita, selo.
+Cai bem em A6.
+
+**check** — cheque. `title` é o banco, `to` o beneficiário, `from` assina,
+`eyebrow` o valor. O corpo vira a quantia por extenso.
+
+**report** — ficha datilografada. `eyebrow` vira o carimbo (CONFIDENCIAL, etc.).
+
+Fontes empacotadas em `fonts/` (sem baixar na hora):
+Liberation (corpo geral), Old Standard (jornal), Crimson Text (carta),
+Special Elite (telegrama e relatório), Pinyon Script (assinatura).
+SIL OFL, salvo Special Elite (Apache 2.0). Sem as AFM do PDFKit
 (elas partem acentos do português).
 
 Metadados do PDF: `Title` = título do prop, `Author` = Felipe Lippelt,
@@ -154,6 +166,10 @@ Um Markdown por template em `examples/`:
 | `examples/edito-fenda.md` | edict |
 | `examples/jornal-fenda.md` | newspaper |
 | `examples/passagem-valdoran.md` | ticket |
+| `examples/envelope-aereo.md` | envelope |
+| `examples/cartao-postal.md` | postcard |
+| `examples/cheque-praca.md` | check |
+| `examples/relatorio.md` | report |
 
 ## Licença
 

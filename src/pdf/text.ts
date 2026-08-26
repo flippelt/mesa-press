@@ -2,16 +2,26 @@ import type { Block, Inline } from '../types.js'
 import { FONT } from './fonts.js'
 import type { PDFDoc } from './pdfkit.js'
 
-export type FlowFamily = 'serif' | 'sans' | 'mono'
+export type FlowFamily = 'serif' | 'sans' | 'mono' | 'news' | 'letter' | 'typewriter' | 'script'
 
 export function fontFor(family: FlowFamily, span: Pick<Inline, 'bold' | 'italic' | 'mono'>): string {
   const bold = Boolean(span.bold)
   const italic = Boolean(span.italic)
-  if (span.mono || family === 'mono') {
-    return bold ? FONT.monoBold : FONT.mono
+  if (span.mono) return bold ? FONT.monoBold : FONT.mono
+  if (family === 'mono') return bold ? FONT.monoBold : FONT.mono
+  if (family === 'typewriter') return FONT.typewriter
+  if (family === 'script') return FONT.script
+  if (family === 'sans') return bold ? FONT.sansBold : FONT.sans
+  if (family === 'news') {
+    if (italic) return FONT.newsItalic
+    if (bold) return FONT.newsBold
+    return FONT.news
   }
-  if (family === 'sans') {
-    return bold ? FONT.sansBold : FONT.sans
+  if (family === 'letter') {
+    if (bold && italic) return FONT.letterBoldItalic
+    if (bold) return FONT.letterBold
+    if (italic) return FONT.letterItalic
+    return FONT.letter
   }
   if (bold && italic) return FONT.serifBoldItalic
   if (bold) return FONT.serifBold

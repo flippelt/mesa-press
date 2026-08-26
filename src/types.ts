@@ -8,6 +8,10 @@ export const TEMPLATES = [
   'edict',
   'newspaper',
   'ticket',
+  'envelope',
+  'postcard',
+  'check',
+  'report',
 ] as const
 export const PAGE_SIZE_NAMES = ['a5', 'a6'] as const
 export const SEALS = ['crimson', 'gold', 'green', 'charcoal', 'none'] as const
