@@ -16,8 +16,6 @@ Irmão impresso do [rpg-prop-kit](https://github.com/flippelt/rpg-prop-kit)
 neste repo — sem depender do pacote npm.
 
 > ⚠️ **Status:** em desenvolvimento inicial (`v0.1.0`). API pode mudar.
-> Texto real de campanha fica em repositórios **privados**. Os `examples/`
-> deste repo são só demonstração pública (Valdoran / União genérica).
 
 ## Requisitos
 
@@ -155,10 +153,6 @@ Metadados do PDF: `Title` = título do prop, `Author` = Felipe Lippelt,
 | `examples/edito-fenda.md` | edict | Decreto sobre a borda norte |
 | `examples/jornal-fenda.md` | newspaper | Recorte da Folha de Pedravale |
 | `examples/passagem-valdoran.md` | ticket | Passagem da caravana |
-
-Valdoran é campanha de demonstração do campaign-codex. A União aqui é
-casca genérica, não uma missão específica. **Não coloque lore privado
-neste repositório.**
 
 ## Licença
 
