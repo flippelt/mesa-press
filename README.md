@@ -3,19 +3,11 @@
 [![CI](https://github.com/flippelt/mesa-press/actions/workflows/ci.yml/badge.svg)](https://github.com/flippelt/mesa-press/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/flippelt/mesa-press)](./LICENSE)
 
-CLI que transforma um arquivo Markdown com frontmatter YAML em um PDF
-**A5** ou **A6** pronto para imprimir e colocar na mesa: carta, cartaz,
-dataslate, placa de metal, telegrama, dossiê, édito, jornal ou passagem.
+Motor de impressão: Markdown com frontmatter YAML → PDF **A5** ou **A6**
+(carta, cartaz, dataslate, placa, telegrama, dossiê, édito, jornal ou
+passagem). Você passa o arquivo; o CLI gera o PDF.
 
-Pensado para **props físicos** (handouts que o jogador segura). O QR opcional
-pode apontar para uma entrada do [campaign-codex](https://github.com/flippelt/campaign-codex)
-ou para um prompt no [Immersive Terminal](https://github.com/flippelt/Immersive-Terminal-for-RPGs).
-
-Irmão impresso do [rpg-prop-kit](https://github.com/flippelt/rpg-prop-kit)
-(props digitais CRT). A paleta analógica é a mesma família de tokens, hardcoded
-neste repo — sem depender do pacote npm.
-
-> ⚠️ **Status:** em desenvolvimento inicial (`v0.1.0`). API pode mudar.
+> ⚠️ **Status:** `v0.1.0`. API pode mudar.
 
 ## Requisitos
 
@@ -142,17 +134,19 @@ Metadados do PDF: `Title` = título do prop, `Author` = Felipe Lippelt,
 
 ## Exemplos
 
-| Arquivo | Template | Demo |
-| ------- | -------- | ---- |
-| `examples/carta-vigia.md` | letter | Relatório da Vigília de Pedravale (Valdoran) |
-| `examples/cartaz-fenda.md` | poster | Aviso sobre a Grande Fenda |
-| `examples/dataslate-union.md` | dataslate | Aviso administrativo da União (genérico) |
-| `examples/placa-setor.md` | plate | Placa do Setor 7-G |
-| `examples/telegrama-vigia.md` | telegram | Cabo urgente da muralha |
-| `examples/dossie-corvo.md` | dossier | Ficha do Mestre Corvo |
-| `examples/edito-fenda.md` | edict | Decreto sobre a borda norte |
-| `examples/jornal-fenda.md` | newspaper | Recorte da Folha de Pedravale |
-| `examples/passagem-valdoran.md` | ticket | Passagem da caravana |
+Um Markdown por template em `examples/`:
+
+| Arquivo | Template |
+| ------- | -------- |
+| `examples/carta-vigia.md` | letter |
+| `examples/cartaz-fenda.md` | poster |
+| `examples/dataslate-union.md` | dataslate |
+| `examples/placa-setor.md` | plate |
+| `examples/telegrama-vigia.md` | telegram |
+| `examples/dossie-corvo.md` | dossier |
+| `examples/edito-fenda.md` | edict |
+| `examples/jornal-fenda.md` | newspaper |
+| `examples/passagem-valdoran.md` | ticket |
 
 ## Licença
 
