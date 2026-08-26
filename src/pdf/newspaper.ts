@@ -1,11 +1,11 @@
 import { NEWSPAPER } from '../tokens.js'
-import type { PropDocument } from '../types.js'
+import type { Block, Inline, PropDocument } from '../types.js'
 import { addSameSizePage } from './document.js'
 import { FONT, isAscii } from './fonts.js'
 import type { PDFDoc } from './pdfkit.js'
 import { drawQr } from './qr.js'
 import { mm, QR_MM, type PageBox } from './sizes.js'
-import { flowBlocks, type FlowBox } from './text.js'
+import { drawLine, flowBlocks, fontFor, wrapSpans, type FlowBox } from './text.js'
 
 /** Notícias de preenchimento — genéricas, sem campanha. Determinísticas via semente. */
 export const NEWSPAPER_FILLERS = [
@@ -112,17 +112,55 @@ function rules(doc: PDFDoc, x: number, y: number, w: number): void {
 
 function columnRule(doc: PDFDoc, x: number, y0: number, y1: number): void {
   doc.save()
-  doc.strokeColor(NEWSPAPER.rule).opacity(0.55)
-  doc.lineWidth(0.7)
+  doc.strokeColor(NEWSPAPER.rule).opacity(0.5)
+  doc.lineWidth(0.45)
   doc
     .moveTo(x, y0)
     .lineTo(x, y1)
     .stroke()
-  doc.lineWidth(0.3)
-  doc
-    .moveTo(x + 1.6, y0)
-    .lineTo(x + 1.6, y1)
-    .stroke()
+  doc.restore()
+}
+
+function tornPaperPath(
+  doc: PDFDoc,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  rnd: () => number,
+): void {
+  const jog = (amp: number): number => (rnd() - 0.5) * mm(amp)
+  const steps = 9
+  doc.moveTo(x + jog(1.8), y + jog(1.8))
+  for (let i = 1; i <= steps; i++) doc.lineTo(x + (w * i) / steps + jog(2.2), y + jog(1.6))
+  for (let i = 1; i <= steps; i++) doc.lineTo(x + w + jog(1.8), y + (h * i) / steps + jog(2.2))
+  for (let i = 1; i <= steps; i++) doc.lineTo(x + w - (w * i) / steps + jog(2.2), y + h + jog(1.8))
+  for (let i = 1; i <= steps; i++) doc.lineTo(x + jog(1.8), y + h - (h * i) / steps + jog(2.2))
+  doc.closePath()
+}
+
+function newsprintTexture(
+  doc: PDFDoc,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  rnd: () => number,
+): void {
+  doc.save()
+  doc.rect(x, y, w, h).clip()
+  doc.strokeColor('#c4b48a').opacity(0.12).lineWidth(0.25)
+  for (let i = 0; i < 28; i++) {
+    const yy = y + rnd() * h
+    doc
+      .moveTo(x, yy)
+      .lineTo(x + w, yy + (rnd() - 0.5) * mm(2))
+      .stroke()
+  }
+  doc.fillColor('#5a4a32').opacity(0.07)
+  for (let i = 0; i < 140; i++) {
+    doc.circle(x + rnd() * w, y + rnd() * h, 0.25 + rnd() * 0.55).fill()
+  }
   doc.restore()
 }
 
@@ -211,15 +249,228 @@ function drawFillerColumn(
 
 function stainClippings(doc: PDFDoc, x: number, y: number, w: number, h: number): void {
   doc.save()
-  doc.fillColor(NEWSPAPER.stain).fillOpacity(0.07)
-  doc.circle(x + mm(10), y + mm(14), mm(12)).fill()
-  doc.fillOpacity(0.06)
-  doc.circle(x + w - mm(8), y + h - mm(18), mm(14)).fill()
-  doc.strokeColor(NEWSPAPER.stain).fillOpacity(1).opacity(0.12).lineWidth(1.1)
-  doc.circle(x + w * 0.78, y + h * 0.28, mm(9)).stroke()
-  doc.lineWidth(0.5)
-  doc.circle(x + w * 0.78, y + h * 0.28, mm(7.4)).stroke()
+  doc.fillColor(NEWSPAPER.stain).fillOpacity(0.06)
+  doc.circle(x + mm(12), y + mm(16), mm(11)).fill()
+  doc.fillOpacity(0.05)
+  doc.circle(x + w - mm(10), y + h - mm(20), mm(13)).fill()
+  doc.strokeColor(NEWSPAPER.stain).fillOpacity(1).opacity(0.11).lineWidth(1)
+  doc.circle(x + w * 0.8, y + h * 0.3, mm(8)).stroke()
+  doc.lineWidth(0.45)
+  doc.circle(x + w * 0.8, y + h * 0.3, mm(6.6)).stroke()
   doc.restore()
+}
+
+function splitHeadline(blocks: Block[]): { headline?: Inline[]; body: Block[] } {
+  const index = blocks.findIndex((block) => block.type === 'heading')
+  if (index < 0) return { body: blocks }
+  const heading = blocks[index]
+  if (!heading || heading.type !== 'heading') return { body: blocks }
+  return {
+    headline: heading.inlines,
+    body: [...blocks.slice(0, index), ...blocks.slice(index + 1)],
+  }
+}
+
+function drawClassifieds(
+  doc: PDFDoc,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  seed: number,
+): void {
+  const pile = shuffle(NEWSPAPER_FILLERS, mulberry32(seed))
+  const ads = pile.slice(0, 2)
+  doc.save()
+  doc.rect(x, y, w, h).clip()
+  doc.strokeColor(NEWSPAPER.rule).opacity(0.65).lineWidth(0.7)
+  doc.rect(x, y, w, h).stroke()
+  doc.font(FONT.sansBold).fontSize(5.5).fillColor(NEWSPAPER.kicker)
+  doc.text('ANÚNCIOS', x + mm(2), y + mm(1.4), { lineBreak: false })
+  let cy = y + mm(5.4)
+  doc.font(FONT.serif).fontSize(6.2).fillColor(NEWSPAPER.ink)
+  for (const ad of ads) {
+    if (!ad || cy > y + h - mm(2.5)) break
+    const line = `${ad.title} — ${ad.body}`
+    const wrapped = wrapPlain(doc, line, w - mm(4), FONT.serif, 6.2)
+    for (const piece of wrapped.slice(0, 2)) {
+      doc.text(piece, x + mm(2), cy, { lineBreak: false, continued: false })
+      cy += mm(3)
+    }
+    cy += mm(0.8)
+  }
+  doc.restore()
+}
+
+type ClipCols = { col1: FlowBox; col2: FlowBox }
+
+type ColumnRow = {
+  height: number
+  gap: number
+  render: (x: number, y: number, width: number) => void
+}
+
+function columnRows(doc: PDFDoc, blocks: Block[], width: number): ColumnRow[] {
+  const size = 8
+  const headingSize = 9.5
+  const lineHeight = 1.16
+  const family = 'serif' as const
+  const color = NEWSPAPER.ink
+  const rows: ColumnRow[] = []
+
+  const pushLines = (spans: Inline[], fontSize: number, extraGap: number, justify: boolean): void => {
+    const lines = wrapSpans(doc, spans, width, family, fontSize)
+    const rowH = fontSize * lineHeight
+    lines.forEach((line, index) => {
+      const last = index === lines.length - 1
+      rows.push({
+        height: rowH,
+        gap: last ? extraGap : 0,
+        render: (x, y, w) => {
+          drawLine(
+            doc,
+            line,
+            x,
+            y,
+            w,
+            family,
+            fontSize,
+            color,
+            justify && !last ? 'justify' : 'left',
+          )
+        },
+      })
+    })
+  }
+
+  for (const block of blocks) {
+    if (block.type === 'hr') {
+      rows.push({
+        height: size * 0.7,
+        gap: 0,
+        render: (x, y, w) => {
+          doc.save()
+          doc.strokeColor(color).lineWidth(0.4).opacity(0.5)
+          doc
+            .moveTo(x, y + size * 0.25)
+            .lineTo(x + w, y + size * 0.25)
+            .stroke()
+          doc.restore()
+        },
+      })
+      continue
+    }
+    if (block.type === 'heading') {
+      pushLines(
+        block.inlines.map((span) => ({ ...span, bold: true })),
+        headingSize - (block.level - 1),
+        size * 0.2,
+        false,
+      )
+      continue
+    }
+    if (block.type === 'quote') {
+      pushLines(
+        block.inlines.map((span) => ({ ...span, italic: true })),
+        size,
+        size * 0.25,
+        true,
+      )
+      continue
+    }
+    if (block.type === 'list') {
+      for (const [index, item] of block.items.entries()) {
+        const marker = block.ordered ? `${index + 1}. ` : '• '
+        const markerFont = fontFor(family, { bold: false })
+        doc.font(markerFont).fontSize(size)
+        const markerW = doc.widthOfString(marker)
+        const lines = wrapSpans(doc, item, Math.max(20, width - markerW), family, size)
+        const rowH = size * lineHeight
+        lines.forEach((line, lineIndex) => {
+          rows.push({
+            height: rowH,
+            gap: 0,
+            render: (x, y, w) => {
+              if (lineIndex === 0) {
+                doc.font(markerFont).fontSize(size).fillColor(color)
+                doc.text(marker, x, y, { lineBreak: false, continued: false })
+              }
+              drawLine(doc, line, x + markerW, y, w - markerW, family, size, color, 'left')
+            },
+          })
+        })
+      }
+      if (rows.length) rows[rows.length - 1]!.gap = size * 0.2
+      continue
+    }
+    pushLines(block.inlines, size, size * 0.35, true)
+  }
+  return rows
+}
+
+function placeColumns(
+  start: ClipCols,
+  onNewPage: () => ClipCols,
+  rows: ColumnRow[],
+  columns: 1 | 2,
+): void {
+  const total = rows.reduce((sum, row) => sum + row.height + row.gap, 0)
+  const colH = Math.max(1, start.col1.maxY - start.col1.y)
+  const splitAt = columns === 1 ? Number.POSITIVE_INFINITY : total <= colH * 1.05 ? total / 2 : colH
+
+  let boxes = start
+  let col = 0
+  let used = 0
+  const current = (): FlowBox => (col === 0 ? boxes.col1 : boxes.col2)
+
+  for (const row of rows) {
+    const needed = row.height
+    if (col === 0 && used > 0 && used + needed > splitAt) {
+      col = 1
+      used = 0
+    }
+    if (current().y + needed > current().maxY) {
+      if (col === 0) {
+        col = 1
+        used = 0
+      }
+      if (current().y + needed > current().maxY) {
+        boxes = onNewPage()
+        col = 0
+        used = 0
+      }
+    }
+    const box = current()
+    row.render(box.x, box.y, box.width)
+    box.y += row.height + row.gap
+    used += row.height + row.gap
+  }
+}
+
+type ClipLayout = ClipCols & { columns: 1 | 2; qr?: { x: number; y: number; size: number } }
+
+function measureHeader(
+  doc: PDFDoc,
+  fm: PropDocument['frontmatter'],
+  headline: Inline[] | undefined,
+  storyW: number,
+  compact: boolean,
+): number {
+  let h = compact ? mm(9) : mm(12)
+  h += mm(8.5)
+  if (fm.eyebrow) h += mm(4)
+  if (headline) {
+    const hSize = compact ? 12 : 15
+    const lines = wrapSpans(
+      doc,
+      headline.map((span) => ({ ...span, bold: true })),
+      storyW,
+      'serif',
+      hSize,
+    )
+    h += lines.length * hSize * 1.12 + mm(5.5)
+  }
+  return h
 }
 
 function paintClippingChrome(
@@ -227,116 +478,178 @@ function paintClippingChrome(
   prop: PropDocument,
   page: PageBox,
   running: boolean,
-): FlowBox {
+  headline: Inline[] | undefined,
+  body: Block[],
+): ClipLayout {
   const { frontmatter: fm } = prop
   const compact = page.name === 'a6'
-  const edge = mm(compact ? 3.2 : 4.5)
-  const sideW = compact ? mm(15.5) : mm(23)
-  const gap = mm(compact ? 2.6 : 3.6)
-  const qrSize = mm(compact ? 16 : QR_MM)
-  const footerReserve = mm(fm.qr ? 6 : 4) + (fm.qr ? qrSize : 0)
-
-  doc.rect(0, 0, page.width, page.height).fill(NEWSPAPER.aged)
-  stainClippings(doc, 0, 0, page.width, page.height)
-
-  const innerW = page.width - 2 * edge
-  const leftX = edge
-  const mainX = edge + sideW + gap
-  const mainW = innerW - 2 * sideW - 2 * gap
-  const rightX = mainX + mainW + gap
-  const colBottom = page.height
-
-  drawFillerColumn(
-    doc,
-    NEWSPAPER_FILLERS,
-    leftX,
-    0,
-    sideW,
-    colBottom,
-    hashString(`${fm.title}|L|${running ? 1 : 0}`),
-  )
-  drawFillerColumn(
-    doc,
-    NEWSPAPER_FILLERS,
-    rightX,
-    0,
-    sideW,
-    colBottom,
-    hashString(`${fm.title}|R|${running ? 1 : 0}`),
-  )
-
-  columnRule(doc, mainX - gap * 0.55, mm(2), page.height - mm(2))
-  columnRule(doc, rightX - gap * 0.55, mm(2), page.height - mm(2))
-
-  let y = edge + mm(compact ? 1 : 2)
-  if (fm.eyebrow && !running) {
-    doc.font(FONT.sansBold).fontSize(6.5).fillColor(NEWSPAPER.kicker)
-    doc.text(fm.eyebrow.toUpperCase(), mainX, y, {
-      width: mainW,
-      align: 'center',
-      characterSpacing: isAscii(fm.eyebrow) ? 1.4 : 0,
-    })
-    y += mm(4.4)
+  const seed = hashString(`${fm.title}\0${fm.date ?? ''}\0${fm.from ?? ''}`)
+  const rndPaper = mulberry32(seed)
+  const pad = mm(compact ? 6 : 8)
+  const paperW = page.width - 2 * pad
+  const inset = mm(compact ? 4 : 5.5)
+  const sliverW = compact ? mm(11) : mm(15)
+  const gap = mm(compact ? 2.4 : 3.2)
+  const storyW = paperW - 2 * inset - sliverW - gap
+  const colGap = mm(compact ? 2.8 : 3.4)
+  const colW = (storyW - colGap) / 2
+  const qrSize = mm(compact ? 14 : 18)
+  const adH = mm(compact ? 16 : 18)
+  const qrGap = fm.qr ? qrSize + mm(4) : 0
+  const headerH = measureHeader(doc, fm, running ? undefined : headline, storyW, compact)
+  const twoColRows = columnRows(doc, body, colW)
+  const oneColRows = columnRows(doc, body, storyW)
+  const twoTotal = twoColRows.reduce((sum, row) => sum + row.height + row.gap, 0)
+  const oneTotal = oneColRows.reduce((sum, row) => sum + row.height + row.gap, 0)
+  const columns: 1 | 2 = twoTotal > mm(32) ? 2 : 1
+  const bodyH = Math.max(mm(14), columns === 2 ? Math.ceil(twoTotal / 2) + mm(2) : oneTotal + mm(1))
+  const maxH = page.height - 2 * pad
+  const minH = mm(compact ? 64 : 78)
+  let paperH = inset * 2 + headerH + bodyH + mm(2) + adH + qrGap
+  if (running || paperH > maxH) paperH = maxH
+  else paperH = Math.min(maxH, Math.max(minH, paperH))
+  const paper = {
+    x: pad,
+    y: (page.height - paperH) / 2,
+    w: paperW,
+    h: paperH,
   }
 
-  doc.font(FONT.serifBold).fontSize(compact ? 13 : 16).fillColor(NEWSPAPER.ink)
-  doc.text(fm.title.toUpperCase(), mainX, y, { width: mainW, align: 'center' })
-  y += compact ? mm(9) : mm(12)
+  doc.rect(0, 0, page.width, page.height).fill(NEWSPAPER.page)
 
-  rules(doc, mainX, y, mainW)
+  doc.save()
+  doc.translate(1.6, 2.2)
+  tornPaperPath(doc, paper.x, paper.y, paper.w, paper.h, mulberry32(seed))
+  doc.fillColor('#2a2218').fillOpacity(0.16).fill()
+  doc.restore()
+
+  tornPaperPath(doc, paper.x, paper.y, paper.w, paper.h, mulberry32(seed))
+  doc.fillColor(NEWSPAPER.aged).fill()
+  tornPaperPath(doc, paper.x, paper.y, paper.w, paper.h, mulberry32(seed))
+  doc.strokeColor(NEWSPAPER.ink).opacity(0.28).lineWidth(0.5).stroke()
+
+  doc.save()
+  tornPaperPath(doc, paper.x, paper.y, paper.w, paper.h, mulberry32(seed))
+  doc.clip()
+  newsprintTexture(doc, paper.x, paper.y, paper.w, paper.h, rndPaper)
+  stainClippings(doc, paper.x, paper.y, paper.w, paper.h)
+
+  const innerX = paper.x + inset
+  const innerY = paper.y + inset
+  const innerBottom = paper.y + paper.h - inset
+  const storyX = innerX + sliverW + gap
+
+  drawFillerColumn(
+    doc,
+    NEWSPAPER_FILLERS,
+    paper.x + mm(1.6),
+    paper.y + mm(1),
+    sliverW + mm(1),
+    innerBottom,
+    hashString(`${fm.title}|sliver|${running ? 1 : 0}`),
+  )
+  columnRule(doc, storyX - gap * 0.5, innerY, innerBottom - adH - qrGap - mm(2))
+
+  let y = innerY
+  doc.font(FONT.serifBold).fontSize(compact ? 13 : 17).fillColor(NEWSPAPER.ink)
+  const mast = fm.title.toUpperCase()
+  doc.text(mast, storyX, y, { lineBreak: false })
+  y += compact ? mm(7) : mm(9.5)
+
+  const leftBit = (fm.date ?? fm.from ?? '').toUpperCase()
+  const rightBit = (fm.from && fm.date ? fm.from : fm.to ?? '').toUpperCase()
+  doc.font(FONT.sans).fontSize(6.5).fillColor(NEWSPAPER.ink).fillOpacity(0.75)
+  if (leftBit) {
+    doc.text(leftBit, storyX, y, { lineBreak: false, characterSpacing: isAscii(leftBit) ? 0.4 : 0 })
+  }
+  if (rightBit) {
+    const rw = doc.widthOfString(rightBit)
+    doc.text(rightBit, storyX + storyW - rw, y, { lineBreak: false })
+  }
+  doc.fillOpacity(1)
   y += mm(4.2)
+  rules(doc, storyX, y, storyW)
+  y += mm(4)
 
-  if (!running) {
-    const bits = [fm.from, fm.date, fm.to].filter(Boolean)
-    if (bits.length) {
-      doc.font(FONT.sans).fontSize(7).fillColor(NEWSPAPER.ink).fillOpacity(0.7)
-      doc.text(bits.join('  ·  ').toUpperCase(), mainX, y, { width: mainW, align: 'center' })
-      doc.fillOpacity(1)
-      y += mm(5)
-      rules(doc, mainX, y, mainW)
-      y += mm(5)
+  if (fm.eyebrow && !running) {
+    doc.font(FONT.sansBold).fontSize(6).fillColor(NEWSPAPER.kicker)
+    doc.text(fm.eyebrow.toUpperCase(), storyX, y, {
+      lineBreak: false,
+      characterSpacing: isAscii(fm.eyebrow) ? 1.2 : 0,
+    })
+    y += mm(4)
+  }
+
+  if (headline && !running) {
+    const hSize = compact ? 12 : 15
+    const lines = wrapSpans(doc, headline.map((span) => ({ ...span, bold: true })), storyW, 'serif', hSize)
+    const row = hSize * 1.12
+    for (const line of lines) {
+      drawLine(doc, line, storyX, y, storyW, 'serif', hSize, NEWSPAPER.ink, 'left')
+      y += row
+    }
+    y += mm(2)
+    doc.save()
+    doc.strokeColor(NEWSPAPER.rule).lineWidth(0.45)
+    doc
+      .moveTo(storyX, y)
+      .lineTo(storyX + storyW, y)
+      .stroke()
+    doc.restore()
+    y += mm(3.5)
+  }
+
+  const adY = innerBottom - adH - qrGap
+  const col1: FlowBox = {
+    x: storyX,
+    y,
+    width: columns === 2 ? colW : storyW,
+    maxY: adY - mm(2),
+  }
+  const col2: FlowBox = {
+    x: storyX + colW + colGap,
+    y,
+    width: colW,
+    maxY: columns === 2 ? adY - mm(2) : y,
+  }
+  if (columns === 2) columnRule(doc, col2.x - colGap * 0.5, y, Math.min(adY - mm(1), y + bodyH))
+
+  drawClassifieds(doc, storyX, adY, storyW, adH, hashString(`${fm.title}|ads`))
+
+  doc.restore()
+
+  const layout: ClipLayout = { col1, col2, columns }
+  if (fm.qr) {
+    layout.qr = {
+      x: storyX + (storyW - qrSize) / 2,
+      y: innerBottom - qrSize,
+      size: qrSize,
     }
   }
-
-  return {
-    x: mainX,
-    y,
-    width: mainW,
-    maxY: page.height - edge - footerReserve,
-  }
+  return layout
 }
 
 function drawClippingNewspaper(doc: PDFDoc, prop: PropDocument, page: PageBox): void {
-  const { frontmatter: fm } = prop
-  const compact = page.name === 'a6'
-  const qrSize = mm(compact ? 16 : QR_MM)
-
-  let box = paintClippingChrome(doc, prop, page, false)
-  const onNewPage = (): Pick<FlowBox, 'y' | 'maxY'> => {
+  const { headline, body } = splitHeadline(prop.blocks)
+  let layout = paintClippingChrome(doc, prop, page, false, headline, body)
+  const onNewPage = (): ClipCols => {
     addSameSizePage(doc, page.width, page.height)
-    box = paintClippingChrome(doc, prop, page, true)
-    return { y: box.y, maxY: box.maxY }
+    layout = paintClippingChrome(doc, prop, page, true, headline, body)
+    return { col1: layout.col1, col2: layout.col2 }
   }
 
-  flowBlocks(
-    doc,
-    prop.blocks,
-    box,
-    {
-      family: 'serif',
-      color: NEWSPAPER.ink,
-      align: 'left',
-      paragraphSize: compact ? 8 : 9.2,
-      headingSize: compact ? 10 : 11.5,
-      lineHeight: 1.32,
-    },
+  placeColumns(
+    { col1: layout.col1, col2: layout.col2 },
     onNewPage,
+    columnRows(doc, body, layout.col1.width),
+    layout.columns,
   )
 
-  if (fm.qr) {
-    const qx = box.x + (box.width - qrSize) / 2
-    const qy = page.height - mm(compact ? 5 : 6) - qrSize
-    drawQr(doc, fm.qr, qx, qy, qrSize, { module: NEWSPAPER.ink, bg: NEWSPAPER.aged })
+  if (layout.qr) {
+    drawQr(doc, prop.frontmatter.qr ?? '', layout.qr.x, layout.qr.y, layout.qr.size, {
+      module: NEWSPAPER.ink,
+      bg: NEWSPAPER.aged,
+    })
   }
 }
 

@@ -123,9 +123,9 @@ ORIGEM/DESTINO/DATA.
 **edict** — decreto. Moldura dourada, título central, selo de cera opcional.
 `eyebrow` padrão: POR DECRETO.
 
-**newspaper** — recorte de jornal antigo. A matéria fica no centro;
-colunas laterais trazem notícias de preenchimento, cortadas pela borda.
-`theme: clipping` (padrão) ou `vellum` (só a matéria). QR no rodapé.
+**newspaper** — recorte de jornal antigo (borda irregular, manchete,
+matéria em coluna, anúncios e notícias vizinhas cortadas na margem).
+`theme: clipping` (padrão) ou `vellum` (página limpa). QR no rodapé.
 
 **ticket** — passagem com talão perfurado à esquerda. `from`/`to` viram DE/PARA;
 QR no talão. Cai bem em A6.

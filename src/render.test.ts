@@ -70,7 +70,8 @@ Texto curto da **Fenda**.
     writeFileSync(out, buffer)
     const text = extractText(out)
     if (text !== null) {
-      expect(text).toMatch(/piano/i)
+      expect(text).toMatch(/ANÚNCIOS/i)
+      expect(text).toMatch(/padeiro/i)
       expect(text).toMatch(/Pedravale/i)
     }
   })
@@ -91,7 +92,7 @@ Só a matéria principal.
     const text = extractText(out)
     if (text !== null) {
       expect(text).toMatch(/matéria principal/i)
-      expect(text).not.toMatch(/piano/i)
+      expect(text).not.toMatch(/ANÚNCIOS/i)
     }
   })
 

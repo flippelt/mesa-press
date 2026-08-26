@@ -35,9 +35,9 @@ function tokenize(spans: Inline[]): Inline[] {
   return out
 }
 
-type Line = { spans: Inline[]; width: number }
+export type Line = { spans: Inline[]; width: number }
 
-function wrapSpans(
+export function wrapSpans(
   doc: PDFDoc,
   spans: Inline[],
   maxWidth: number,
@@ -117,7 +117,7 @@ export type FlowStyle = {
   lineHeight: number
 }
 
-function drawLine(
+export function drawLine(
   doc: PDFDoc,
   line: Line,
   x: number,
@@ -126,8 +126,22 @@ function drawLine(
   family: FlowFamily,
   fontSize: number,
   color: string,
-  align: 'left' | 'center',
+  align: 'left' | 'center' | 'justify',
 ): void {
+  if (align === 'justify') {
+    const gaps = line.spans.filter((span) => /^\s+$/.test(span.text)).length
+    const extra = boxWidth - line.width
+    const bump = gaps > 0 && extra > 0 && extra < boxWidth * 0.35 ? extra / gaps : 0
+    let cursor = x
+    for (const span of line.spans) {
+      const font = fontFor(family, span)
+      doc.font(font).fontSize(fontSize).fillColor(color)
+      const w = doc.widthOfString(span.text)
+      doc.text(span.text, cursor, y, { lineBreak: false, continued: false })
+      cursor += w + (/^\s+$/.test(span.text) ? bump : 0)
+    }
+    return
+  }
   let cursor = align === 'center' ? x + (boxWidth - line.width) / 2 : x
   for (const span of line.spans) {
     const font = fontFor(family, span)

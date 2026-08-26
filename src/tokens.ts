@@ -51,8 +51,9 @@ export const EDICT = {
 
 export const NEWSPAPER = {
   paper: '#f3efe2',
-  aged: '#ebe1c4',
-  ink: '#161410',
+  aged: '#e4d7b4',
+  page: '#f4efe4',
+  ink: '#1a1610',
   rule: '#2a2418',
   kicker: '#7a1f16',
   stain: '#7a4a1e',
