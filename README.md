@@ -171,6 +171,14 @@ Um Markdown por template em `examples/`:
 | `examples/cheque-praca.md` | check |
 | `examples/relatorio.md` | report |
 
+## Família
+
+| Projeto | Papel |
+|---|---|
+| [rpg-prop-kit](https://www.npmjs.com/package/rpg-prop-kit) | as mesmas linguagens visuais, na tela |
+| [session-kit](https://github.com/flippelt/session-kit) | YAML de sessão → Markdown destes templates |
+| [Campaign Codex](https://github.com/flippelt/campaign-codex) | QR opcional aponta pro códice |
+
 ## Licença
 
 MIT © 2026 Felipe Lippelt. Ver [LICENSE](./LICENSE). As fontes Liberation
