@@ -2,20 +2,26 @@
 
 [![CI](https://github.com/flippelt/mesa-press/actions/workflows/ci.yml/badge.svg)](https://github.com/flippelt/mesa-press/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/flippelt/mesa-press)](./LICENSE)
+![node](https://img.shields.io/badge/node-%E2%89%A5%2022-339933)
 
-Motor de impressão: Markdown com frontmatter YAML → PDF **A5** ou **A6**
-(carta, cartaz, dataslate, placa, telegrama, dossiê, édito, jornal ou
-passagem). Você passa o arquivo; o CLI gera o PDF.
+CLI que transforma Markdown com frontmatter YAML em **PDF pronto para
+imprimir** e entregar na mesa de RPG: carta com selo de cera, cartaz de
+procurado, recorte de jornal, telegrama, dossiê, cheque, passagem e mais,
+em **A5** ou **A6**.
 
-Irmão impresso do [rpg-prop-kit](https://github.com/flippelt/rpg-prop-kit).
-O QR opcional pode apontar para o [campaign-codex](https://github.com/flippelt/campaign-codex)
-ou para o [Immersive Terminal](https://github.com/flippelt/Immersive-Terminal-for-RPGs).
+- **13 templates**, cada um com moldura, tipografia e textura próprias.
+- **Offline**: as fontes vêm empacotadas, nada é baixado na hora.
+- **QR opcional** em qualquer template, para ligar o papel a algo na tela.
+- **Acentos do português** funcionam (sem as fontes AFM do PDFKit).
 
-> ⚠️ **Status:** `v0.2.0`. API pode mudar.
+É o irmão impresso do [rpg-prop-kit](https://github.com/flippelt/rpg-prop-kit).
 
-## Requisitos
+> ⚠️ **Status:** `v0.2.0`. A API ainda pode mudar. Não está no npm; use a
+> partir do clone.
 
-- Node.js 22 ou superior
+## Começo rápido
+
+Requer **Node.js 22** ou superior.
 
 ```bash
 git clone https://github.com/flippelt/mesa-press.git
@@ -24,162 +30,188 @@ npm ci
 npm run build
 ```
 
-## Uso
+Escreva um arquivo, por exemplo `bilhete.md`:
 
-```bash
-npx mesa-press render input.md --out out.pdf
-npx mesa-press render input.md --out dir/
-npx mesa-press render examples/*.md --out dist/pdfs/
+```markdown
+---
+template: letter
+size: a6
+title: Um aviso
+from: Um amigo
+seal: crimson
+---
+
+Não confie no estalajadeiro. **Saia antes do amanhecer.**
 ```
 
-- `--out arquivo.pdf` — grava nesse caminho (um único input).
-- `--out dir/` ou `--out dir` — grava `dir/<slug>.pdf`. O slug vem do
-  nome do arquivo (`carta-vigia.md` → `carta-vigia.pdf`).
-- Vários inputs exigem um diretório de saída.
-
-Sai com código **1** se faltar `template`/`title`, se o template for
-desconhecido, ou se o arquivo não existir.
+E gere o PDF:
 
 ```bash
-npm test
-npm run build
+node dist/cli.js render bilhete.md --out bilhete.pdf
+```
+
+Para ver todos os templates de uma vez, gere os exemplos em `dist/pdfs/`:
+
+```bash
 npm run render:examples
 ```
 
-O último comando gera PDFs em `dist/pdfs/` (gitignored).
+## Uso
+
+```bash
+node dist/cli.js render <entrada.md...> --out <arquivo.pdf | diretório/>
+```
+
+| Forma | Resultado |
+| --- | --- |
+| `render a.md --out a.pdf` | grava exatamente nesse arquivo |
+| `render a.md --out pdfs/` | grava `pdfs/a.pdf` (slug do nome do arquivo) |
+| `render examples/*.md --out pdfs/` | um PDF por entrada; vários arquivos exigem diretório |
+
+- `-o` é atalho de `--out`; `--out=caminho` também funciona.
+- Globs são expandidos pelo próprio CLI, então funcionam também sem shell.
+- O caminho de cada PDF gerado sai no stdout; avisos saem no stderr.
+- Sai com código **1** em qualquer erro: arquivo inexistente, frontmatter
+  ausente ou inválido, falta de `template`/`title`, valor desconhecido em
+  `template`, `size`, `seal` ou `theme`.
+
+> **Nota:** por enquanto, rode o CLI com `node dist/cli.js`. Chamado por
+> symlink (`npx mesa-press`, `npm link`) ele termina sem gerar nada.
 
 ## Frontmatter
 
 ```yaml
 ---
-template: letter | poster | dataslate | plate | telegram | dossier | edict | newspaper | ticket | envelope | postcard | check | report
-size: a5 | a6
-title: string
-from?: string
-to?: string
-date?: string
-seal?: crimson | gold | green | charcoal | none
-qr?: string
-eyebrow?: string
-theme?: vellum | imperial | amber | iron | brass | gunmetal | clipping | column | headline
+template: letter      # obrigatório
+title: Título do prop # obrigatório
+size: a5              # a5 | a6
+from: Remetente
+to: Destinatário
+date: Inverno do 12º ano
+seal: crimson         # crimson | gold | green | charcoal | none
+qr: https://exemplo.com
+eyebrow: CONFIDENCIAL
+theme: vellum         # depende do template, ver abaixo
 ---
-
-Corpo em Markdown. **negrito**, *itálico*, headings, listas e parágrafos.
-Imagens (`![alt](url)`) são ignoradas no MVP, com aviso no stderr.
 ```
 
-| Campo      | Obrigatório | Padrão     | Notas |
-| ---------- | ----------- | ---------- | ----- |
-| `template` | sim         | —          | ver lista abaixo |
-| `title`    | sim         | —          | Título no prop |
-| `size`     | não         | `a5`       | `a5` ou `a6`, sempre retrato |
-| `from`     | não         | —          | Remetente / origem |
-| `to`       | não         | —          | Destinatário |
-| `date`     | não         | —          | Data livre (não precisa ser ISO) |
-| `seal`     | não         | `none`     | Selo de cera (carta e édito) |
-| `qr`       | não         | —          | URL ou texto. QR 20 mm |
-| `eyebrow`  | não         | —          | Tarja / classificação / seção |
-| `theme`    | não         | ver abaixo | `imperial`/`amber` no dataslate; `iron`/`brass`/`gunmetal` na placa; `clipping`/`column`/`headline` no jornal; `vellum` no resto |
+| Campo | Obrigatório | Padrão | O que faz |
+| --- | --- | --- | --- |
+| `template` | sim | — | Um dos [templates](#templates) |
+| `title` | sim | — | Título do prop (e `Title` nos metadados do PDF) |
+| `size` | não | `a5` | `a5` ou `a6`, sempre retrato |
+| `from` | não | — | Remetente / origem / assinatura |
+| `to` | não | — | Destinatário |
+| `date` | não | — | Texto livre, não precisa ser ISO |
+| `seal` | não | `none` | Selo de cera: só em `letter` e `edict` |
+| `qr` | não | — | URL ou texto; vira um QR no prop |
+| `eyebrow` | não | — | Tarja, carimbo ou seção, conforme o template |
+| `theme` | não | por template | Variação visual (tabela abaixo) |
 
-`theme` no dataslate escolhe o fósforo (`imperial` verde, `amber` âmbar).
-Na **placa**, escolhe o metal. No **jornal**: `clipping` (padrão, recorte
-com vizinhos e anúncios), `column` (uma coluna), `headline` (manchete),
-`vellum` (página limpa).
+### Temas
 
-## Tamanhos
+| Template | Temas | Padrão |
+| --- | --- | --- |
+| `dataslate` | `imperial` (fósforo verde), `amber` (âmbar) | `imperial` |
+| `plate` | `iron`, `brass`, `gunmetal` | `iron` |
+| `newspaper` | `clipping` (recorte com vizinhos e anúncios), `column` (uma coluna), `headline` (manchete), `vellum` (página limpa) | `clipping` |
+| demais | `vellum` | `vellum` |
 
-Retrato, em pontos PDF (1 mm = 72/25.4):
+### Corpo em Markdown
 
-| Formato | milímetros | uso típico |
-| ------- | ---------- | ---------- |
-| A5      | 148 × 210  | carta, cartaz, dataslate na mesa |
-| A6      | 105 × 148  | bilhete, convite, ficha de bolso |
+Suportado: parágrafos, headings `#` a `###`, listas (com e sem número),
+citações `>`, linha horizontal `---`, **negrito**, *itálico* e `código`
+(monoespaçado).
 
-O **dataslate** também é retrato, com moldura/bezel desenhada na página.
-Não gira para paisagem no MVP.
+- Links viram só o texto (papel não tem clique; use `qr` para isso).
+- Imagens são ignoradas com aviso no stderr; o texto alternativo fica em
+  itálico.
+- Texto longo continua em páginas extras com a mesma moldura, exceto em
+  `envelope` e `check`, que são peça única.
 
 ## Templates
 
-**letter** — carta em velino. Margem, borda dupla, título centralizado,
-bloco De/Para/Data, corpo em serifada, selo de cera opcional no canto
-inferior direito, QR no inferior esquerdo.
+| Template | O que é | `eyebrow` vira | Onde fica o QR |
+| --- | --- | --- | --- |
+| `letter` | Carta em velino, borda dupla, bloco De/Para/Data, assinatura, selo de cera opcional | — | canto inferior esquerdo |
+| `poster` | Aviso / procurado: moldura grossa, título tipo xilogravura, manchas nos cantos | tarja acima do título | centro inferior |
+| `dataslate` | Tablet sci-fi: página escura, bezel, texto monoespaçado | classificação | centro inferior, em fósforo |
+| `plate` | Placa de metal com rebites e degradê; aviso de setor ou porta | tarja | centro inferior |
+| `telegram` | Ficha de telégrafo, DE/PARA, corpo em linhas datilografadas | classe e carimbo (padrão: TELEGRAMA) | canto inferior direito da ficha |
+| `dossier` | Pasta manila com aba e ficha ORIGEM/DESTINO/DATA | carimbo diagonal | canto inferior direito |
+| `edict` | Decreto com moldura dourada, selo de cera opcional | linha acima do título (padrão: POR DECRETO) | canto inferior esquerdo |
+| `newspaper` | Recorte de jornal em papel cinza, borda irregular | seção | centro do rodapé |
+| `ticket` | Passagem com talão perfurado; `from`/`to` viram DE/PARA. Fica bem em A6 | rótulo (padrão: PASSAGEM) | no talão |
+| `envelope` | Envelope com aba, remetente, destinatário e selo postal | `aéreo`/`airmail` desenha as listras | no selo |
+| `postcard` | Cartão postal: recado à esquerda, endereço e selo à direita. Fica bem em A6 | texto do selo | lado do endereço |
+| `check` | Cheque: `title` é o banco, `to` o beneficiário, `from` assina, corpo é a quantia por extenso | valor | canto inferior esquerdo |
+| `report` | Ficha datilografada | carimbo (CONFIDENCIAL etc.) | canto inferior direito |
 
-**poster** — aviso / procurado. Moldura grossa dupla, `eyebrow` em oxblood,
-título grande tipo xilogravura, corpo centralizado, rodapé com data.
-Duas manchas suaves nos cantos. QR no centro inferior.
+Há um exemplo de cada em [`examples/`](./examples), com o nome do arquivo
+indicando o template (`carta-vigia.md` é `letter`, `jornal-fenda.md` é
+`newspaper`, e assim por diante).
 
-**dataslate** — tablet sci-fi. Página escura, bezel, barra `:: DATASLATE ::`,
-título e corpo em monoespaçada. QR em módulos invertidos (fósforo no fundo
-escuro). `theme: imperial` (padrão) ou `amber`.
+### Tamanhos
 
-**plate** — placa de metal (rebites, degradê). `theme: iron` (padrão), `brass`
-ou `gunmetal`. Bom para aviso de setor / porta.
+| Formato | Milímetros | Uso típico |
+| --- | --- | --- |
+| A5 | 148 × 210 | carta, cartaz, dataslate na mesa |
+| A6 | 105 × 148 | bilhete, passagem, postal, ficha de bolso |
 
-**telegram** — ficha de telégrafo (DE/PARA, carimbo do `eyebrow`, corpo
-monoespaçado em linhas). QR no canto.
+Tudo é retrato. O dataslate desenha a moldura dentro da página, sem girar
+para paisagem.
 
-**dossier** — pasta manila com aba, carimbo diagonal do `eyebrow`, ficha
-ORIGEM/DESTINO/DATA.
+## Uso como biblioteca
 
-**edict** — decreto. Moldura dourada, título central, selo de cera opcional.
-`eyebrow` padrão: POR DECRETO.
+O build também exporta as funções do CLI (ESM). A partir do clone:
 
-**newspaper** — recorte de jornal (papel cinza, borda irregular).
-`clipping` (padrão) inclui vizinhos e anúncios; `column` é uma coluna
-só; `headline` é manchete; `vellum` é a página limpa. QR no rodapé.
+```ts
+import { writeFile } from 'node:fs/promises'
+import { parsePropSource, renderToBuffer } from './dist/index.js'
 
-**ticket** — passagem com talão perfurado à esquerda. `from`/`to` viram DE/PARA;
-QR no talão. Cai bem em A6.
+const prop = parsePropSource(markdownComFrontmatter)
+await writeFile('prop.pdf', await renderToBuffer(prop))
+```
 
-**envelope** — envelope com aba, remetente, destinatário e selo. `eyebrow: aéreo`
-(ou airmail) desenha as listras. QR no selo.
+Também exporta `renderFile(caminho)`, `parseMarkdown`, `slugFromFilename`,
+`MesaPressError` e os tipos (`Frontmatter`, `TemplateName` etc.).
 
-**postcard** — cartão postal: recado à esquerda, endereço à direita, selo.
-Cai bem em A6.
+## Fontes
 
-**check** — cheque. `title` é o banco, `to` o beneficiário, `from` assina,
-`eyebrow` o valor. O corpo vira a quantia por extenso.
+Empacotadas em [`fonts/`](./fonts):
 
-**report** — ficha datilografada. `eyebrow` vira o carimbo (CONFIDENCIAL, etc.).
-
-Fontes empacotadas em `fonts/` (sem baixar na hora):
-Liberation (corpo geral), Old Standard (jornal), Crimson Text (carta),
-Special Elite (telegrama e relatório), Pinyon Script (assinatura).
-SIL OFL, salvo Special Elite (Apache 2.0). Sem as AFM do PDFKit
-(elas partem acentos do português).
+| Família | Uso | Licença |
+| --- | --- | --- |
+| Liberation Serif/Sans/Mono | corpo geral | SIL OFL |
+| Old Standard | jornal | SIL OFL |
+| Crimson Text | carta e postal | SIL OFL |
+| Special Elite | telegrama e relatório | Apache 2.0 |
+| Pinyon Script | assinatura | SIL OFL |
 
 Metadados do PDF: `Title` = título do prop, `Author` = Felipe Lippelt,
 `Creator` = mesa-press.
 
-## Exemplos
+## Desenvolvimento
 
-Um Markdown por template em `examples/`:
+```bash
+npm test                 # vitest
+npm run build            # tsc → dist/
+npm run render:examples  # todos os exemplos → dist/pdfs/ (gitignored)
+```
 
-| Arquivo | Template |
-| ------- | -------- |
-| `examples/carta-vigia.md` | letter |
-| `examples/cartaz-fenda.md` | poster |
-| `examples/dataslate-union.md` | dataslate |
-| `examples/placa-setor.md` | plate |
-| `examples/telegrama-vigia.md` | telegram |
-| `examples/dossie-corvo.md` | dossier |
-| `examples/edito-fenda.md` | edict |
-| `examples/jornal-fenda.md` | newspaper |
-| `examples/passagem-valdoran.md` | ticket |
-| `examples/envelope-aereo.md` | envelope |
-| `examples/cartao-postal.md` | postcard |
-| `examples/cheque-praca.md` | check |
-| `examples/relatorio.md` | report |
+A CI roda `npm test` e `npm run build` no Node 22 a cada push e PR.
 
 ## Família
 
 | Projeto | Papel |
-|---|---|
+| --- | --- |
 | [rpg-prop-kit](https://www.npmjs.com/package/rpg-prop-kit) | as mesmas linguagens visuais, na tela |
 | [session-kit](https://github.com/flippelt/session-kit) | YAML de sessão → Markdown destes templates |
-| [Campaign Codex](https://github.com/flippelt/campaign-codex) | QR opcional aponta pro códice |
+| [Campaign Codex](https://github.com/flippelt/campaign-codex) | destino do QR: o códice da campanha |
+| [Immersive Terminal](https://github.com/flippelt/Immersive-Terminal-for-RPGs) | outro destino do QR: terminal na tela |
 
 ## Licença
 
-MIT © 2026 Felipe Lippelt. Ver [LICENSE](./LICENSE). As fontes Liberation
-em `fonts/` são SIL OFL (`fonts/LICENSE-LIBERATION`).
+Código sob MIT © 2026 Felipe Lippelt, ver [LICENSE](./LICENSE). As fontes
+têm licença própria (SIL OFL ou Apache 2.0), com os textos em
+[`fonts/`](./fonts).
