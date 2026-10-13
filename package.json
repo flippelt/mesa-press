@@ -49,15 +49,15 @@
     "prepublishOnly": "npm test && npm run build"
   },
   "dependencies": {
-    "pdfkit": "^0.19.1",
+    "pdfkit": "^0.20.2",
     "qrcode": "^1.5.4",
-    "yaml": "^2.8.1"
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
-    "@types/node": "^26.0.0",
+    "@types/node": "^26.6.2",
     "@types/pdfkit": "^0.17.3",
     "@types/qrcode": "^1.5.6",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.8"
+    "vitest": "^5.0.1"
   }
 }
